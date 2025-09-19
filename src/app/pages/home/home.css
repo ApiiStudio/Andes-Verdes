@@ -19,6 +19,14 @@
   margin-bottom: 16px;
 }
 
+.botonsearchh{
+    background-color: #fff;
+    border: 0;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+}
+
 .search-input{
   width: 100%;
   max-width: 720px;
