@@ -1,13 +1,19 @@
 import { Component } from '@angular/core';
-import { Footer } from '../../shared/footer/footer';
-import { Navbar } from '../../shared/navbar/navbar';
+import { Footer } from "../../shared/footer/footer";
+import { Navbar } from "../../shared/navbar/navbar";
 
 @Component({
   selector: 'app-home',
-  imports: [Navbar,Footer],
   templateUrl: './home.html',
-  styleUrl: './home.css'
+  styleUrls: ['./home.css'],
+  imports: [Footer, Navbar]
 })
 export class Home {
+  searchText = '';
 
+  onSearchChange(evt: Event) {
+    this.searchText = (evt.target as HTMLInputElement).value || '';
+    console.log('Buscar:', this.searchText);
+    // aquí puedes emitir o filtrar datos si luego agregas lista
+  }
 }
