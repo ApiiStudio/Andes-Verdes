@@ -1,3 +1,44 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Andes Verdes — Parques Nacionales</title>
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-sA+e2v1j3kYv3bq6Gg2gE3x6yLk3hH7Kk0vKZ4fYkG0=" crossorigin=""/>
+
+  <!-- Icons (opcional) -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+  <link rel="stylesheet" href="home.css" />
+</head>
+<body>
 <app-navbar></app-navbar>
-<p>home works!</p>
+
+<main class="home-root">
+  <div class="search-wrapper">
+    <label for="searchInput" class="sr-only">Buscar parque</label>
+    <input
+      id="searchInput"
+      type="search"
+      placeholder="Buscar parque..."
+      (input)="onSearchChange($event)"
+      class="search-input"
+      autocomplete="off"
+    />
+  </div>
+
+  <div class="map-frame" role="region" aria-label="Marco del mapa">
+    <div class="map-placeholder">
+      Aca se encuentra mapa interactivo(marco estático)
+    </div>
+  </div>
+</main>
+
 <app-footer></app-footer>
+</body>
+</html>
+
