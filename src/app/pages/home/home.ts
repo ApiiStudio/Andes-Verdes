@@ -14,6 +14,5 @@ export class Home {
   onSearchChange(evt: Event) {
     this.searchText = (evt.target as HTMLInputElement).value || '';
     console.log('Buscar:', this.searchText);
-    // aquí puedes emitir o filtrar datos si luego agregas lista
   }
 }
