@@ -1,1 +1,168 @@
-<p>register works!</p>
+<!--Contenedor Principal-->
+<div class="register-wrapped">
+    <div class="row">
+        <!-- Contenedor Imágen -->
+        <div class="col-8 image-column"></div>
+        <div class="col-4">
+            <!-- Formulario Registro -->
+            <div class="form-panel">
+                <h2>Crear Cuenta</h2>
+                <!-- Prevent browser/password managers autocomplete issues -->
+                <form [formGroup]="registerForm" (ngSubmit)="signup()" class="container" autocomplete="off">
+                    <!-- hidden dummy fields to defeat some password managers -->
+                    <input type="text" name="fakeusernameremembered" style="display:none">
+                    <input type="password" name="fakepasswordremembered" style="display:none">
+                    <!--Nombre y Apellido-->
+                    <div class="mb-3">
+                        <label for="exampleInputName1" class="form-label register-label">Nombre</label>
+                        <input type="text" class="form-control" id="exampleInputName1" formControlName="name" />
+                        <!--Validaciones NyA-->
+                        @if (name?.errors && name?.touched) {
+                        @if (name?.hasError('required')) {
+                        <p class="text-danger mt-1">El nombre es requerido.</p>
+                        }
+                        }
+                        @else if (name?.hasError('minlength')) {
+                        <p class="text-danger mt-1">El nombre debe tener al menos 3 caracteres.</p>
+                        }
+                        @else if (name?.hasError('maxlength')) {
+                        <p class="text-danger mt-1">El nombre no puede tener más de 50 caracteres.</p>
+                        }
+                        @else if (name?.hasError('pattern')) {
+                        <p class="text-danger mt-1">El nombre solo puede contener letras y espacios.</p>
+                        }
+                    </div>
+                    <div class="mb-3">
+                        <label for="exampleInputsurName1" class="form-label register-label">Apellido</label>
+                        <input type="text" class="form-control" id="exampleInputsurName1" formControlName="surname" />
+                        <!--Validaciones NyA-->
+                        @if (surname?.errors && surname?.touched) {
+                        @if (surname?.hasError('required')) {
+                        <p class="text-danger mt-1">El apellido es requerido.</p>
+                        }
+                        }
+                        @else if (surname?.hasError('minlength')) {
+                        <p class="text-danger mt-1">El apellido debe tener al menos 3 caracteres.</p>
+                        }
+                        @else if (surname?.hasError('maxlength')) {
+                        <p class="text-danger mt-1">El apellido no puede tener más de 50 caracteres.</p>
+                        }
+                        @else if (surname?.hasError('pattern')) {
+                        <p class="text-danger mt-1">El apellido solo puede contener letras y espacios.</p>
+                        }
+                    </div>
+                    <!--Email-->
+                    <div class="mb-3" style="position: relative;" #emailContainer>
+                        <label for="exampleInputEmail1" class="form-label login-label">Correo electrónico</label>
+                        <input type="email" class="form-control" id="exampleInputEmail1" formControlName="email"
+                            [ngClass]="{'is-invalid': (email?.touched && email?.invalid) || email?.hasError('emailExists')}"
+                            [attr.autocomplete]="'off'" (focus)="showSuggestions = true" (blur)="hideSuggestions()"
+                            (input)="onEmailInput()" />
+                        <p *ngIf="signupError" class="text-danger mt-2">{{ signupError }}</p>
+
+                        <!--Sugerencias-->
+                        @if (showSuggestions) {
+                        <ul class="email-suggestions-list">
+                            @for (suggestion of emailSuggestions; track suggestion) {
+                            <li (mousedown)="applySuggestion(suggestion)">
+                                {{ email?.value?.split('@')[0] || '' }}{{ suggestion }}
+                            </li>
+                            }
+                        </ul>
+                        }
+                        <!--Validaciones Email-->
+                        @if (email?.touched && email?.hasError('required')) {
+                        <p class="text-danger mt-1">El correo electrónico es requerido.</p>
+                        }
+                        @if (email?.touched && email?.hasError('email')) {
+                        <p class="text-danger mt-1">El correo electrónico no es válido.</p>
+                        }
+                        @if (email?.touched && email?.hasError('maxlength')) {
+                        <p class="text-danger mt-1">El correo electrónico no puede tener más de 100 caracteres.</p>
+                        }
+                        @if (email?.touched && email?.hasError('pattern')) {
+                        <p class="text-danger mt-1">El correo electrónico no es válido.</p>
+                        }
+                    </div>
+                    <!--Contraseña-->
+                    <div class="mb-3">
+                        <label for="exampleInputPassword1" class="form-label register-label">Contraseña</label>
+                        <div class="input-group">
+                            <input name="password" autocomplete="new-password"
+                                [type]="showPassword ? 'text' : 'password'" class="form-control"
+                                id="exampleInputPassword1" formControlName="password" (input)="onPasswordInput()" />
+                            <!--Visibilidad Contraseña-->
+                            <button type="button" class="btn btn-outline-secondary" (click)="togglePasswordVisibility()"
+                                tabindex="-1">
+                                <i class="fa-solid fa-eye-slash"></i>
+                                <i class="bi" [attr.class]="showPassword ? 'bi bi-eye-slash' : 'bi bi-eye'"></i>
+                            </button>
+                        </div>
+                        <div class="progress mt-2" style="height: 6px;">
+                            <div class="progress-bar" [ngClass]="{
+                                'bg-danger': passwordStrength === 'débil',
+                                'bg-warning': passwordStrength === 'media',
+                                'bg-success': passwordStrength === 'fuerte'
+                            }" [style.width]="
+                                !password?.value ? '0%' :
+                                passwordStrength === 'débil' ? '33%' :
+                                passwordStrength === 'media' ? '66%' : '100%'
+                            ">
+                            </div>
+                        </div>
+                        <div class="mt-1 mb-2" *ngIf="password?.value">
+                            <span [ngClass]="{
+                                'text-danger': passwordStrength === 'débil',
+                                'text-warning': passwordStrength === 'media',
+                                'text-success': passwordStrength === 'fuerte'
+                            }" style="text-transform: capitalize;">
+                                {{ passwordStrength }}
+                            </span>
+                        </div>
+
+                        <!--Validaciones Contraseña-->
+                        <ul class="password-rules list-unstyled mt-2">
+                            @for (rule of passwordRules; track rule.label) {
+                            <li [attr.class]="rule.valid ? 'text-primary' : 'text-muted'">
+                                <i class="fa-solid fa-check"></i><i class="bi bi-check-circle-fill me-1"></i> {{
+                                rule.label }}
+                            </li>
+                            }
+                        </ul>
+                        @if (getPasswordErrors()) {
+                        <p class="text-danger mt-1">{{ getPasswordErrors() }}</p>
+                        }
+                    </div>
+                    <!-- Confirmar Contraseña -->
+                    <div class="mb-3">
+                        <label for="exampleInputConfirmPassword1" class="form-label register-label">Confirmar
+                            contraseña</label>
+                        <div class="input-group">
+                            <input name="confirmPassword" autocomplete="new-password"
+                                [type]="showPassword ? 'text' : 'password'" class="form-control" [ngClass]="{
+                        'is-invalid': (confirmPassword?.touched || confirmPassword?.dirty) && registerForm.hasError('mismatch')
+                        }" id="exampleInputConfirmPassword1" formControlName="confirmPassword"
+                                (input)="onPasswordInput()" />
+                        </div>
+                        @if (confirmPassword?.errors && confirmPassword?.touched) {
+                        @if (confirmPassword?.hasError('required')) {
+                        <p class="text-danger mt-1">La confirmación de contraseña es requerida.</p>
+                        }
+                        }
+                        @if (registerForm.hasError('mismatch') && (confirmPassword?.touched || password?.touched)) {
+                        <p class="text-danger mt-1">Las contraseñas no coinciden.</p>
+                        }
+                    </div>
+                    <!-- Botón -->
+                    <button type="submit" class="btn register-btn w-100">Crear cuenta</button>
+                </form>
+                <div class="text-center mt-3">
+                    <p class="register-text mb-1 d-inline">
+                        ¿Ya tienes cuenta?
+                        <a routerLink="/login" class="register-link ms-2">Iniciar sesión</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

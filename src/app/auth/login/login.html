@@ -1,1 +1,35 @@
-<p>login works!</p>
+<!--Contenedor Principal-->
+<div class="loggin-wrapped">
+    <div class="row">
+        <div class="col-4">
+            <!-- Formulario Inicio de Sesión -->
+            <div class="form-panel">
+            <form class="form-container" action="">
+                <h2>Iniciar Sesión</h2>
+                <br>
+                <label for="InputEmail" class="form-label login-label">Correo electrónico</label>
+                <input type="email" class="form-control" id="InputEmail" formControlName="email" />
+                <label for="InputPassword" class="form-label login-label">Contraseña</label>
+                <input type="password" class="form-control" id="InputPassword" formControlName="password" />
+                <br>
+                <button type="submit" class="btn login-btn w-100">Iniciar sesión</button>
+                <!-- Divider -->
+                <div class="divider">
+                    <span class="divider-text">O</span>
+                </div>
+                <!-- Continuar con terceros -->
+                <button type="submit" class="btn login-btn-sec w-100">Continuar con Google</button>
+                <button type="submit" class="btn login-btn-sec w-100">Continuar con Apple</button>
+                <br>
+                <!-- Registrar -->
+                <p class="login-text">
+                    ¿No tienes una cuenta?
+                    <a routerLink="/register">Crear cuenta P.N.</a>
+                </p>
+            </form>
+            </div>
+        </div>
+        <!-- Contenedor Imágen -->
+        <div class="col-7 image-column"></div>
+    </div>
+</div>
