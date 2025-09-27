@@ -1,28 +1,18 @@
-
-
 <app-navbar></app-navbar>
 <script src="https://kit.fontawesome.com/2e27035b45.js" crossorigin="anonymous"></script>
 <main class="home-root">
-  <div class="search-wrapper">
-    <button class="botonsearchh"> <i class="fa-solid fa-magnifying-glass"></i> </button>
-    <label for="searchInput" class="sr-only">Buscar parque</label>
-    <input
-      id="searchInput"
-      type="search"
-      placeholder="Buscar parque..."
-      (input)="onSearchChange($event)"
-      class="search-input"
-      autocomplete="off"
-    />
-  </div>
-
-  <div class="map-frame" role="region" aria-label="Marco del mapa">
-    <div class="map-placeholder">
-      Aca se encuentra mapa interactivo(marco estático)
+    <div class="search-wrapper">
+        <button class="botonsearchh"> <i class="fa-solid fa-magnifying-glass"></i> </button>
+        <label for="searchInput" class="sr-only">Buscar parque</label>
+        <input id="searchInput" type="search" placeholder="Buscar parque..." (input)="onSearchChange($event)"
+            class="search-input" autocomplete="off" />
     </div>
-  </div>
+
+    <div class="map-frame" role="region" aria-label="Marco del mapa">
+        <div class="map-placeholder">
+            Aca se encuentra mapa interactivo(marco estático)
+        </div>
+    </div>
 </main>
 
 <app-footer></app-footer>
-
-
