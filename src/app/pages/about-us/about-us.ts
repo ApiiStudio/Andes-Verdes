@@ -3,11 +3,11 @@ import { Navbar } from '../../shared/navbar/navbar';
 import { Footer } from '../../shared/footer/footer';
 
 @Component({
-  selector: 'app-florafauna',
+  selector: 'app-about-us',
   imports: [Navbar, Footer],
-  templateUrl: './florafauna.html',
-  styleUrl: './florafauna.css'
+  templateUrl: './about-us.html',
+  styleUrl: './about-us.css'
 })
-export class Florafauna {
+export class AboutUs {
 
 }

@@ -17,6 +17,7 @@
 
 .search-wrapper{
   margin-bottom: 16px;
+  width: 100%;
 }
 
 .botonsearchh{
@@ -29,7 +30,7 @@
 
 .search-input{
   width: 100%;
-  max-width: 720px;
+  max-width: 96%;
   padding: 12px 16px;
   border-radius: 14px;
   border: 1px solid var(--border);

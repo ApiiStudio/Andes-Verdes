@@ -57,7 +57,7 @@
     display: block;
     flex: 1;
     position: relative;
-    background-image: url('/Imagenes/imagen-login.jpg');
+    background-image: url('/imagen-login.jpg');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
