@@ -1,21 +1,43 @@
 <app-navbar></app-navbar>
 <script src="https://kit.fontawesome.com/2e27035b45.js" crossorigin="anonymous"></script>
+
 <main class="home-root">
     <div class="banner">
         <img src="" alt="">
     </div>
+
+    <!-- Contenedor -->
     <div class="search-wrapper">
-        <button class="botonsearchh"><i class="fa-solid fa-magnifying-glass"></i> </button>
-        <label for="searchInput" class="sr-only">Buscar parque</label>
-        <input id="searchInput" type="search" placeholder="Buscar parque..." (input)="onSearchChange($event)"
-            class="search-input" autocomplete="off" />
+        <div class="search-container">
+            <button class="botonsearchh">
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </button>
+
+            <label for="searchInput" class="sr-only">Buscar parque</label>
+            <input id="searchInput" type="search" placeholder="Buscar parque..." (input)="onSearchChange($event)"
+                class="search-input" autocomplete="off" [value]="searchText" />
+        </div>
+
+        @if (filteredParques.length > 0) {
+        <ul class="suggestions">
+            @for (parque of filteredParques; track parque.properties.name) {
+            <li (click)="selectParque(parque)">
+                {{ parque.properties.name }}
+                <span class="provincia">({{ parque.properties.description }})</span>
+            </li>
+            }
+        </ul>
+        }
     </div>
 
     <div class="container">
         <div class="map-frame">
             <div id="map"></div>
-            <div class="map-placeholder" id="map-placeholder">Cargando mapa... si el mapa no aparece, revise la consola del navegador.</div>
+            <div class="map-placeholder" id="map-placeholder">
+                Cargando mapa... si el mapa no aparece, revise la consola del navegador.
+            </div>
         </div>
     </div>
 </main>
+
 <app-footer></app-footer>

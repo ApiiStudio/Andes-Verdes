@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Footer } from "../../shared/footer/footer";
 import { Navbar } from "../../shared/navbar/navbar";
-// ...existing code...
+import { CommonModule } from '@angular/common';
 
 declare let L: any;
 
@@ -9,21 +9,38 @@ declare let L: any;
   selector: 'app-home',
   templateUrl: './home.html',
   styleUrls: ['./home.css'],
-  imports: [Footer, Navbar]
+  imports: [Footer, Navbar, CommonModule]
 })
 export class Home implements OnInit {
   searchText = '';
+  allParques: any[] = [];
+  filteredParques: any[] = [];
+  markerByName: { [key: string]: any } = {};
   map : any;
   markerClusterGroup: any;
   initializedView = false;
+  argBounds: any = null;
+  markerZoomed = false;
 
   onSearchChange(evt: Event) {
     this.searchText = (evt.target as HTMLInputElement).value || '';
-    console.log('Buscar:', this.searchText);
+    console.log('Buscar:', this.searchText)
+
+    const value = (evt.target as HTMLInputElement).value.toLowerCase().trim();
+    this.searchText = value;
+
+    if (value.length > 0) {
+    this.filteredParques = this.allParques.filter((parque: any) =>
+      parque.properties.name.toLowerCase().includes(value)
+    );
+    } else {
+      this.filteredParques = [];
+    };
   }
 
   ngOnInit(): void {
-    // Cargar recursos externos (Leaflet.markercluster) y después crear el mapa
+    // Cargar recursos externos (Leaflet.markercluster) y después crea el mapa
+    this.loadParques();
     this.loadExternalResources()
       .then(() => this.createMap())
       .catch(err => {
@@ -32,7 +49,59 @@ export class Home implements OnInit {
       });
   }
 
-  // Carga dinámica de CSS/JS necesarios para MarkerCluster (si no están ya cargados)
+  private loadParques() {
+    fetch('/parques-argentina.geojson')
+    .then(res => res.json())
+    .then(data => {
+      this.allParques = data.features || [];
+    })
+    .catch(err => console.error('Error cargando parques:', err));
+  }
+
+  selectParque(parque: any) {
+    this.searchText = parque.properties.name;
+    this.filteredParques = [];
+    const name = parque.properties.name;
+    const marker = this.markerByName[name];
+    if (marker && this.map) {
+      if (this.markerClusterGroup && typeof this.markerClusterGroup.zoomToShowLayer === 'function') {
+        try {
+          this.markerClusterGroup.zoomToShowLayer(marker, () => {
+            this.map.setView(marker.getLatLng(), 10);
+            marker.openPopup();
+          });
+          return;
+        } catch (e) {
+        }
+      }
+
+      this.map.setView(marker.getLatLng(), Math.max(this.map.getZoom(), 10));
+      marker.openPopup();
+      return;
+    }
+    // Si no hay marker (fallback), usar las coordenadas del GeoJSON
+    const coords = parque.geometry?.coordinates;
+    if (coords && this.map) {
+      const [lon, lat] = coords;
+      this.map.setView([lat, lon], 10);
+      L.popup({ offset: [0, -20] })
+        .setLatLng([lat, lon])
+        .setContent(`<strong>${parque.properties.name}</strong><br>${parque.properties.description}`)
+        .openOn(this.map);
+    }
+  }
+
+  // Handler para presionar Enter en el input: seleccionar la primera suggestion si existe
+  onEnter() {
+    if (this.filteredParques && this.filteredParques.length > 0) {
+      this.selectParque(this.filteredParques[0]);
+    }
+  }
+
+  trackByName(index: number, item: any) {
+    return item?.properties?.name || index;
+  }
+
   private loadExternalResources(): Promise<void> {
     const cssUrl = 'https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css';
     const cssUrl2 = 'https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css';
@@ -60,9 +129,8 @@ export class Home implements OnInit {
     return Promise.all([loadCss(cssUrl), loadCss(cssUrl2), loadScript(scriptUrl)]).then(() => undefined as void);
   }
 
+  // Crea mapa vacio y sus limites
   private createMap(): void {
-    // Usar un basemap limpio sin etiquetas para luego dibujar solo lo que queremos (mejora la legibilidad/ calidad)
-    // CartoDB Positron (sin etiquetas) — buena resolución y estilo neutro
     const osm = L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_nolabels/{z}/{x}/{y}{r}.png', {
       attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
       subdomains: 'abcd',
@@ -71,7 +139,7 @@ export class Home implements OnInit {
       maxNativeZoom: 19
     });
 
-    // Bounds aproximados de Argentina (para restringir navegación)
+    // Lmiites aproximados de Argentina
     const bounds = {
       north: -21.78,
       south: -55.13,
@@ -82,8 +150,9 @@ export class Home implements OnInit {
     const southwest = L.latLng(bounds.south, bounds.west);
     const northeast = L.latLng(bounds.north, bounds.east);
     const fitbounds = L.latLngBounds(southwest, northeast);
+  this.argBounds = fitbounds;
 
-    // Centro aproximado de Argentina
+    // Centrar aprox arg
     this.map = L.map('map', {
       center: L.latLng(-38.4161, -63.6167),
       zoom: 4,
@@ -93,7 +162,6 @@ export class Home implements OnInit {
       layers: [osm]
     });
 
-    // Ocultar placeholder cuando el basemap o el mapa terminen de cargar tiles
     try {
       osm.on && osm.on('load', () => {
         const ph = document.getElementById('map-placeholder'); if (ph) ph.classList.add('hidden');
@@ -105,33 +173,16 @@ export class Home implements OnInit {
       });
     } catch (e) {}
 
-    // Forzar recálculo de tamaño poco después para evitar que Leaflet deje el mapa a la mitad
     setTimeout(() => { try { this.map.invalidateSize(); } catch (e) {} }, 250);
 
-    // Agrupar marcadores usando MarkerCluster (si está disponible)
+    // Agrupar marcadores con MarkerCluster
     try {
       this.markerClusterGroup = (L as any).markerClusterGroup ? (L as any).markerClusterGroup() : null;
     } catch (e) {
       this.markerClusterGroup = null;
     }
 
-    // Cargar etiquetas de países (solo el nombre) para que los otros países muestren únicamente su nombre
-    this.loadCountryLabels()
-      .then(layer => {
-        if (layer) layer.addTo(this.map);
-      })
-      .catch(err => console.warn('No se pudieron cargar labels de países:', err));
-
-    // Intentar cargar GeoJSON de provincias y ciudades de Argentina si existen en /public
-    this.loadArgentinaDetails()
-      .then(() => {
-        // detalles cargados
-      })
-      .catch(() => {
-        // no hay detalles, seguimos con los parques/markers ya implementados
-      });
-
-    // Intentar cargar un GeoJSON con la lista completa de Parques Nacionales
+    // Cargar la lista de los Parques Nacionales
     const geoJsonUrl = '/parques-argentina.geojson';
     fetch(geoJsonUrl)
       .then(res => {
@@ -139,7 +190,7 @@ export class Home implements OnInit {
         return res.json();
       })
       .then((data) => {
-        // Para cada feature, crear un marcador con icono coloreado según properties.category
+        // Para cada feature, crea un marcador con icono coloreado según properties.category
         const markers: any[] = [];
         (data.features || []).forEach((f: any) => {
           if (!f.geometry) return;
@@ -160,7 +211,14 @@ export class Home implements OnInit {
           const name = f.properties?.name || 'Parque';
           const desc = f.properties?.description || '';
           marker.bindPopup(`<strong>${name}</strong><br/>${desc}`);
+          marker.on && marker.on('click', (e: any) => {
+            try { if (e?.originalEvent) L.DomEvent.stopPropagation(e.originalEvent); } catch (err) {}
+            try { this.map.setView(marker.getLatLng(), 10); } catch (err) {}
+            try { marker.openPopup(); } catch (err) {}
+            this.markerZoomed = true;
+          });
           markers.push(marker);
+          try { this.markerByName[name] = marker; } catch (e) {}
         });
 
         if (this.markerClusterGroup) {
@@ -169,8 +227,6 @@ export class Home implements OnInit {
         } else {
           markers.forEach(m => m.addTo(this.map));
         }
-
-        // Ajustar vista al bounds del GeoJSON si tiene geometría (una sola vez para no resetear cuando el usuario usa controles)
         try {
           if (!this.initializedView) {
             const group = this.markerClusterGroup || L.featureGroup(markers);
@@ -179,15 +235,12 @@ export class Home implements OnInit {
             this.initializedView = true;
           }
         } catch (e) {
-          // ignore
         }
 
-        // Aplicar la política de bloqueo de interacción
         this.updateInteractionLock();
       })
       .catch(err => {
         console.warn('GeoJSON de parques no cargado:', err);
-        // Fallback: marcar algunos parques de ejemplo para que el mapa muestre marcadores
         const sampleParks = [
           { name: 'Parque Nacional Iguazú', lat: -25.6953, lon: -54.4367, category: 'noreste' },
           { name: 'Parque Nacional Los Glaciares', lat: -50.3319, lon: -72.2495, category: 'sur' },
@@ -211,7 +264,14 @@ export class Home implements OnInit {
             popupAnchor: [0, -32]
           });
           const marker = L.marker([p.lat, p.lon], { icon }).bindPopup(`<strong>${p.name}</strong>`);
+          marker.on && marker.on('click', (e: any) => {
+            try { if (e?.originalEvent) L.DomEvent.stopPropagation(e.originalEvent); } catch (err) {}
+            try { this.map.setView(marker.getLatLng(), 10); } catch (err) {}
+            try { marker.openPopup(); } catch (err) {}
+            this.markerZoomed = true;
+          });
           markers.push(marker);
+          try { this.markerByName[p.name] = marker; } catch (e) {}
         });
 
         if (this.markerClusterGroup) {
@@ -221,15 +281,21 @@ export class Home implements OnInit {
           markers.forEach(m => m.addTo(this.map));
         }
 
-        // Después de renderizar fallback markers, aplicar la política de bloqueo (solo si no inicializamos la vista aún)
         if (!this.initializedView) this.updateInteractionLock();
       });
 
-  // Escuchar cambios de zoom para habilitar/deshabilitar interacción según el nivel
   this.map.on('zoomend', () => this.updateInteractionLock());
+    this.map.on('click', (e: any) => {
+      if (this.markerZoomed && this.argBounds) {
+        try {
+          this.map.fitBounds(this.argBounds, { padding: [50, 50] });
+        } catch (err) {}
+        this.markerZoomed = false;
+      }
+    });
   }
 
-  // Devuelve un color según categoría (puedes adaptar la paleta)
+  // Devuelve color según categoría
   private colorForCategory(cat: string) {
     const map: any = {
       norte: '#e84a5f',
@@ -244,9 +310,6 @@ export class Home implements OnInit {
     return map[cat] || map.default;
   }
 
-  // Carga una capa con nombres de países (simple): usamos un GeoJSON ligero con solo etiquetas de países
-  // Para mantenerlo simple y offline-friendly, intentamos usar un archivo en public/ country-labels.geojson si existe
-  // De lo contrario, devolvemos null.
   private loadCountryLabels(): Promise<any | null> {
     const url = '/country-labels.geojson';
     return fetch(url)
@@ -276,41 +339,23 @@ export class Home implements OnInit {
       .catch(() => null);
   }
 
-  // Intentamos cargar GeoJSON de provincias/ciudades de Argentina si existe en public/
-  private loadArgentinaDetails(): Promise<void> {
-    const provUrl = '/argentina-provincias.geojson';
-    const citiesUrl = '/argentina-ciudades.geojson';
-    const addLayerIfFound = (url: string, style?: any) => fetch(url)
-      .then(res => { if (!res.ok) throw new Error('no'); return res.json(); })
-      .then((gj) => L.geoJSON(gj, { style }).addTo(this.map))
-      .catch(() => null);
-
-    return Promise.all([addLayerIfFound(provUrl, { color: '#666', weight: 1, fill: false }), addLayerIfFound(citiesUrl)])
-      .then(() => undefined);
-  }
-
-  // Controla si el mapa debe bloquear el arrastre (dragging) y el zoom de desplazamiento cuando se está viendo toda Argentina
   private updateInteractionLock(): void {
     if (!this.map) return;
 
     const currentZoom = this.map.getZoom();
     const currentBounds = this.map.getBounds();
 
-    // Bounds aproximados de Argentina (misma definición que arriba)
+    // Bounds aproximados de Argentina
     const argBounds = L.latLngBounds(L.latLng(-55.13, -73.58), L.latLng(-21.78, -53.63));
-
-    // Si la vista actual contiene totalmente los bounds de Argentina (es decir, estás viendo todo el país)
     const containsAll = currentBounds.contains(argBounds);
 
-    // Política: si estás viendo todo Argentina (containsAll true) o el zoom <= 5, bloquear el arrastre para mantener foco.
     const shouldLock = containsAll || currentZoom <= 5;
-
-    // Aplicar bloqueo/permiso de arrastre (dragging) solamente.
-    // Conservamos el zoom por scroll, doble-clic y gestos para que el usuario pueda hacer zoom sin que la página haga zoom completo.
     if (shouldLock) {
       try { this.map.dragging.disable(); } catch (e) {}
     } else {
       try { this.map.dragging.enable(); } catch (e) {}
     }
   }
+
+
 }
