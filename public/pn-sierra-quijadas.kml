@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>PN Sierra de las Quijadas</name>
+    <Style id="line-097138-3713-normal">
+      <LineStyle>
+        <color>ff387109</color>
+        <width>3.713</width>
+      </LineStyle>
+    </Style>
+    <Style id="line-097138-3713-highlight">
+      <LineStyle>
+        <color>ff387109</color>
+        <width>5.5695</width>
+      </LineStyle>
+    </Style>
+    <StyleMap id="line-097138-3713">
+      <Pair>
+        <key>normal</key>
+        <styleUrl>#line-097138-3713-normal</styleUrl>
+      </Pair>
+      <Pair>
+        <key>highlight</key>
+        <styleUrl>#line-097138-3713-highlight</styleUrl>
+      </Pair>
+    </StyleMap>
+    <Placemark>
+      <name>PN Sierra de/Las Quijadas</name>
+      <description><![CDATA[descripción: <br>ROTULO: PN Sierra de/Las Quijadas]]></description>
+      <styleUrl>#line-097138-3713</styleUrl>
+      <ExtendedData>
+        <Data name="descripción">
+          <value/>
+        </Data>
+        <Data name="ROTULO">
+          <value>PN Sierra de/Las Quijadas</value>
+        </Data>
+      </ExtendedData>
+      <LineString>
+        <tessellate>1</tessellate>
+        <coordinates>
+          -67.165783,-32.411862,0
+          -67.162174,-32.452782,0
+          -67.08253,-32.452775,0
+          -67.082946,-32.414571,0
+          -67.034428,-32.413673,0
+          -67.033944,-32.45473,0
+          -66.978699,-32.453775,0
+          -66.97828,-32.478951,0
+          -66.971124,-32.470713,0
+          -66.9694,-32.460411,0
+          -66.962949,-32.467166,0
+          -66.960073,-32.467456,0
+          -66.957585,-32.467804,0
+          -66.956699,-32.468489,0
+          -66.956392,-32.468807,0
+          -66.963262,-32.501053,0
+          -66.968322,-32.500303,0
+          -66.977178,-32.54435,0
+          -66.97768,-32.51457,0
+          -66.995403,-32.514444,0
+          -67.018019,-32.532157,0
+          -67.019068,-32.560191,0
+          -67.020156,-32.595017,0
+          -67.013465,-32.600483,0
+          -67.023343,-32.614474,0
+          -67.027305,-32.671242,0
+          -67.031371,-32.721131,0
+          -67.1799,-32.720231,0
+          -67.189702,-32.693978,0
+          -67.215737,-32.676866,0
+          -67.236715,-32.633806,0
+          -67.250363,-32.621982,0
+          -67.242087,-32.60902,0
+          -67.248098,-32.586765,0
+          -67.260952,-32.555938,0
+          -67.272493,-32.537635,0
+          -67.280846,-32.505985,0
+          -67.295682,-32.475121,0
+          -67.286843,-32.439941,0
+          -67.294069,-32.416824,0
+          -67.165783,-32.411862,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+  </Document>
+</kml>

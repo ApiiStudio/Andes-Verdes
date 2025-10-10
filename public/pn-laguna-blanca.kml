@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>PN Laguna Blanca</name>
+    <Style id="line-097138-3713-normal">
+      <LineStyle>
+        <color>ff387109</color>
+        <width>3.713</width>
+      </LineStyle>
+    </Style>
+    <Style id="line-097138-3713-highlight">
+      <LineStyle>
+        <color>ff387109</color>
+        <width>5.5695</width>
+      </LineStyle>
+    </Style>
+    <StyleMap id="line-097138-3713">
+      <Pair>
+        <key>normal</key>
+        <styleUrl>#line-097138-3713-normal</styleUrl>
+      </Pair>
+      <Pair>
+        <key>highlight</key>
+        <styleUrl>#line-097138-3713-highlight</styleUrl>
+      </Pair>
+    </StyleMap>
+    <Placemark>
+      <name>PN Laguna Blanca</name>
+      <description><![CDATA[descripción: <br>ROTULO: PN Laguna Blanca]]></description>
+      <styleUrl>#line-097138-3713</styleUrl>
+      <ExtendedData>
+        <Data name="descripción">
+          <value/>
+        </Data>
+        <Data name="ROTULO">
+          <value>PN Laguna Blanca</value>
+        </Data>
+      </ExtendedData>
+      <LineString>
+        <tessellate>1</tessellate>
+        <coordinates>
+          -70.262207,-39.057875,0
+          -70.325023,-39.104398,0
+          -70.409249,-39.035127,0
+          -70.444227,-39.00636,0
+          -70.381422,-38.9599,0
+          -70.313277,-39.015905,0
+          -70.262207,-39.057875,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+  </Document>
+</kml>

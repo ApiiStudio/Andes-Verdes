@@ -101,8 +101,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          -58.9778669,
-          -27.4408498
+          -59.65506,
+          -26.82658
         ]
       }
     },
@@ -176,8 +176,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          -58.25668,
-          -31.88216
+          -58.67282,
+          -27.18443
         ]
       }
     },
@@ -206,8 +206,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          -57.123,
-          -28.138
+          -56.93083,
+          -27.93238
         ]
       }
     },
@@ -289,21 +289,6 @@
     {
       "type": "Feature",
       "properties": {
-        "name": "Laguna El Palmar",
-        "description": "Chaco",
-        "category": "noreste"
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          -59.442,
-          -26.884
-        ]
-      }
-    },
-    {
-      "type": "Feature",
-      "properties": {
         "name": "Lanín",
         "description": "Neuquén",
         "category": "patagonia"
@@ -326,8 +311,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          -64.672,
-          -37.133
+          -65.60471,
+          -37.93488
         ]
       }
     },
@@ -401,8 +386,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          -58.2303422,
-          -28.0465164
+          -58.06922,
+          -28.01299
         ]
       }
     },
@@ -491,8 +476,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          -64.2407434,
-          -31.3078706
+          -64.78331,
+          -31.69761
         ]
       }
     },

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>PN Chaco</name>
+    <Style id="line-097138-1200-normal">
+      <LineStyle>
+        <color>ff387109</color>
+        <width>1.2</width>
+      </LineStyle>
+    </Style>
+    <Style id="line-097138-1200-highlight">
+      <LineStyle>
+        <color>ff387109</color>
+        <width>1.8</width>
+      </LineStyle>
+    </Style>
+    <StyleMap id="line-097138-1200">
+      <Pair>
+        <key>normal</key>
+        <styleUrl>#line-097138-1200-normal</styleUrl>
+      </Pair>
+      <Pair>
+        <key>highlight</key>
+        <styleUrl>#line-097138-1200-highlight</styleUrl>
+      </Pair>
+    </StyleMap>
+    <Placemark>
+      <name>PN Chaco</name>
+      <description><![CDATA[descripción: <br>ROTULO: PN Chaco]]></description>
+      <styleUrl>#line-097138-1200</styleUrl>
+      <ExtendedData>
+        <Data name="descripción">
+          <value/>
+        </Data>
+        <Data name="ROTULO">
+          <value>PN Chaco</value>
+        </Data>
+      </ExtendedData>
+      <LineString>
+        <tessellate>1</tessellate>
+        <coordinates>
+          -59.604721,-26.759003,0
+          -59.605134,-26.894208,0
+          -59.627967,-26.894229,0
+          -59.656037,-26.894067,0
+          -59.705664,-26.89406,0
+          -59.704723,-26.758849,0
+          -59.604721,-26.759003,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+  </Document>
+</kml>
