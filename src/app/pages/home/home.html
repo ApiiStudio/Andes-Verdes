@@ -1,11 +1,28 @@
 <app-navbar></app-navbar>
 <script src="https://kit.fontawesome.com/2e27035b45.js" crossorigin="anonymous"></script>
-
-<main class="home-root">
-    <div class="banner">
-        <img src="" alt="">
+<div id="carouselExample" class="carousel slide">
+    <div class="carousel-inner">
+        <div class="carousel-item active">
+            <img src="/SlidePaquetes.png" class="d-block w-100" alt="...">
+        </div>
+        <div class="carousel-item">
+            <img src="SlideRent.png" class="d-block w-100" alt="...">
+        </div>
+        <div class="carousel-item">
+            <img src="SlideVuelos.png" class="d-block w-100" alt="...">
+        </div>
     </div>
 
+    <button class="carousel-control-prev" type="button" data-bs-target="#carouselExample" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Previous</span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#carouselExample" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Next</span>
+    </button>
+</div>
+<main class="home-root">
     <!-- Contenedor -->
     <div class="search-wrapper">
         <div class="search-container">
@@ -37,6 +54,40 @@
                 Cargando mapa... si el mapa no aparece, revise la consola del navegador.
             </div>
         </div>
+    </div>
+
+    <div class="accordion-container">
+        @if (regions && regions.length > 0) {
+        <div class="accordion" id="accordionExample">
+            @for (region of regions; track region.id) {
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                        attr.data-bs-target="{{ '#collapse-' + region.id }}" aria-expanded="false" attr.aria-controls="{{ 'collapse-' + region.id }}">
+                        {{ region.name }} <span class="badge bg-light text-muted ms-2">{{ region.parks.length }}</span>
+                    </button>
+                </h2>
+                <div id="collapse-{{region.id}}" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+                    <div class="accordion-body">
+                        @if (region.parks && region.parks.length > 0) {
+                        <ul class="region-list">
+                            @for (p of region.parks; track p.properties.name) {
+                            <li (click)="selectParque(p)" class="region-item">
+                                {{ p.properties?.name || p.properties?.ROTULO || 'Parque' }}
+                                <small class="text-muted"> - {{ p.properties?.region || p.properties?.description || p.properties?.provincia || p.properties?.PROVINCIA || p.properties?.category }}</small>
+                            </li>
+                            }
+                        </ul>
+                        }
+                    </div>
+                </div>
+            </div>
+            }
+        </div>
+        }
+        @if (!(regions && regions.length > 0)) {
+        <div class="text-muted">Cargando regiones...</div>
+        }
     </div>
 </main>
 

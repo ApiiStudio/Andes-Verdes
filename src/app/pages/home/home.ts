@@ -17,6 +17,8 @@ export class Home implements OnInit {
   filteredParques: any[] = [];
   markerByName: { [key: string]: any } = {};
   polygonByName: { [key: string]: any } = {};
+  kmlFeatures: any[] = [];
+  regions: any[] = [];
   map : any;
   markerClusterGroup: any;
   initializedView = false;
@@ -55,8 +57,160 @@ export class Home implements OnInit {
     .then(res => res.json())
     .then(data => {
       this.allParques = data.features || [];
+      console.log('GeoJSON cargado: features=', (this.allParques || []).length);
+      try { this.buildRegions(); } catch (e) {}
     })
     .catch(err => console.error('Error cargando parques:', err));
+  }
+
+  // Construye las 6 regiones oficiales y asigna parques
+  private buildRegions() {
+    const normalize = (s: any) => typeof s === 'string' ? s.toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '') : '';
+
+    // stronger base-name extractor: remove parenthetical role tags and common suffixes/prefixes
+    const baseName = (raw: string) => {
+      if (!raw) return '';
+      let s = raw.toLowerCase();
+      // remove HTML that sometimes exists in description/name
+      s = s.replace(/<[^>]+>/g, ' ');
+      // remove leading 'núcleo' or 'núcleo ' variants
+      s = s.replace(/^núcleo\s+/u, '');
+      // remove role tags in parentheses e.g. (Parque Nacional) (Reserva Nacional)
+      s = s.replace(/\([^)]*\)/g, '');
+      // remove common suffix words
+      s = s.replace(/\b(parque nacional|parque nacional marino|reserva nacional|sector|núcleo|área protegida|provincia)\b/gu, '');
+      // normalize slashes and punctuation
+      s = s.replace(/[\/\|]/g, ' ');
+      s = s.replace(/[^a-z0-9\s]/gu, ' ');
+      s = s.replace(/\s+/g, ' ').trim();
+      // remove diacritics
+      s = s.normalize('NFD').replace(/\p{Diacritic}/gu, '');
+      return s;
+    };
+
+    // Listas exactas proporcionadas por el usuario (normalizadas)
+    const manual: any = {
+      'noa': ['pn baritu','el rey','los cardones','aconquija','calilegua','copo'],
+      'nea': ['iguazu','chaco','el impenetrable','laguna el palmar','ibera','mburucuya','rio pilcomayo','río pilcomayo'],
+      'centro': ['quebrada del condorito','traslasierra','ansenuza','el leoncito','san guillermo','sierra de las quijadas','talampaya','islas de santa fe','pre-delta','el palmar','ciervo de los pantanos','campos del tuyu','campos del tuyú','campos del tuyú'],
+      'patagonia': ['lanin','laguna blanca','los arrayanes','nahuel huapi','islote lobos','lihue calel','los alerces','lago puelo'],
+      'patagonia-austral': ['los glaciares','perito moreno','patagonia','bosques petrificados de jaramillo','bosques petrificados','monte leon','tierra del fuego'],
+      'mar-argentino': ['pim isla pinguino','pim isla pingüino','pimc patagonia austral','parque interjurisdiccional marino costero patagonia austral']
+    };
+
+    // construir lookup nombre -> region
+    const nameToRegion: { [key: string]: string } = {};
+    Object.keys(manual).forEach(rid => {
+      (manual[rid] as string[]).forEach(n => nameToRegion[normalize(n)] = rid);
+    });
+
+    // Deduplicar: preferir features del GeoJSON (this.allParques) y luego KMLs
+    // Deduplicate by a stronger base name key. We'll keep a bucket with preferred feature.
+    const dedup: { [key: string]: { feature: any, score: number } } = {};
+    const scoreFeature = (ft: any) => {
+      // prefer polygons/lines over points, prefer features from this.allParques
+      let score = 0;
+      if (ft.geometry) {
+        const t = ft.geometry.type || '';
+        if (t === 'Polygon' || t === 'MultiPolygon' || t === 'LineString' || t === 'MultiLineString') score += 10;
+        if (t === 'Point') score += 1;
+      }
+      // prefer GeoJSON source: we mark features that appear in this.allParques
+      if ((this.allParques || []).includes(ft)) score += 5;
+      // small bonus if properties show a longer description (more likely canonical)
+      const desc = ft.properties?.description || '';
+      if (typeof desc === 'string' && desc.length > 30) score += 1;
+      return score;
+    };
+
+    const pushBucket = (ft: any) => {
+      const raw = ft.properties?.name || ft.properties?.ROTULO || ft.properties?.Name || '';
+      const key = baseName(raw || '');
+      if (!key) return;
+      const s = scoreFeature(ft);
+      if (!dedup[key] || (dedup[key].score || 0) < s) {
+        dedup[key] = { feature: ft, score: s };
+      }
+    };
+
+    // First add GeoJSON features (prefer them when names collide)
+    (this.allParques || []).forEach(f => pushBucket(f));
+    // Then KML-derived features - they can replace if they have better score (usually polygons)
+    (this.kmlFeatures || []).forEach(f => pushBucket(f));
+
+    // inicializar regiones en orden solicitado
+    const regionOrder = [
+      { id: 'noa', name: 'NOA', parks: [] as any[] },
+      { id: 'nea', name: 'NEA', parks: [] as any[] },
+      { id: 'centro', name: 'Centro', parks: [] as any[] },
+      { id: 'patagonia', name: 'Patagonia', parks: [] as any[] },
+      { id: 'patagonia-austral', name: 'Patagonia Austral', parks: [] as any[] },
+      { id: 'mar-argentino', name: 'Mar Argentino', parks: [] as any[] }
+    ];
+
+    // Helper fallback classifier (provincias/coords) — reusar parte de la heurística previa
+    const regionDefs: any[] = [
+      { id: 'noa', provinces: ['jujuy','salta','tucuman','tucumán','catamarca','santiago del estero'] },
+      { id: 'nea', provinces: ['misiones','corrientes','formosa','chaco'] },
+      { id: 'centro', provinces: ['cordoba','córdoba','santa fe','santafe','entre rios','entre ríos','la pampa','buenos aires','san luis'] },
+      { id: 'patagonia', provinces: ['neuquen','nequén','neuquén','rio negro','río negro','chubut'] },
+      { id: 'patagonia-austral', provinces: ['santa cruz','tierra del fuego'] }
+    ];
+
+    const classifyFallback = (ft: any) => {
+      const props = ft.properties || {};
+      const name = normalize(props.name || props.ROTULO || '');
+      const desc = normalize(props.description || props.provincia || props.PROVINCIA || props.province || '');
+      for (const def of regionDefs) {
+        for (const pk of def.provinces) {
+          if (!pk) continue;
+          const pkNorm = normalize(pk);
+          if (desc.includes(pkNorm) || name.includes(pkNorm)) return def.id;
+        }
+      }
+      if (name.includes('pim') || name.includes('mar')) return 'mar-argentino';
+      const lat = ft.geometry?.type === 'Point' ? ft.geometry.coordinates[1] : null;
+      if (typeof lat === 'number') {
+        if (lat <= -50) return 'patagonia-austral';
+        if (lat <= -40) return 'patagonia';
+        if (lat <= -34) return 'centro';
+        if (lat <= -21) return 'noa';
+      }
+      return 'centro';
+    };
+
+    // Asignar deduplicados a regiones
+    // For diagnostics, keep track of which key chose which region and source
+    const diagnostics: { key: string, region: string, source: string, origin: string }[] = [];
+    Object.keys(dedup).forEach(nm => {
+      const ft = dedup[nm].feature;
+      const manualKey = nm;
+      const mapped = nameToRegion[manualKey];
+      const fallbackRegion = classifyFallback(ft) || 'centro';
+      const target = mapped || fallbackRegion;
+      const r = regionOrder.find(rr => rr.id === target) || regionOrder[2];
+      r.parks.push(ft);
+
+      const source = (this.allParques || []).includes(ft) ? 'geojson' : 'kml';
+      const origin = mapped ? 'manual' : 'fallback';
+      diagnostics.push({ key: nm, region: target, source, origin });
+    });
+
+    // Guardar
+    this.regions = regionOrder;
+
+    // Log de diagnóstico (simplificado)
+    try {
+      const total = Object.keys(dedup).length;
+      console.log('buildRegions (manual): total unique parks=', total);
+      this.regions.forEach(r => console.log(`region ${r.id} (${r.name}) => ${r.parks.length} parques`));
+      // Print detailed diagnostics for Centro specifically to help debugging
+      const centroDiag = diagnostics.filter(d => d.region === 'centro');
+      if (centroDiag.length > 0) {
+        console.log('buildRegions diagnostics - Centro keys:');
+        centroDiag.forEach(d => console.log(`  key='${d.key}' source=${d.source} origin=${d.origin}`));
+      }
+    } catch (e) {}
   }
 
   selectParque(parque: any) {
@@ -221,6 +375,21 @@ export class Home implements OnInit {
                 const pm = placemarks[i];
                 const nameEl = pm.getElementsByTagName('name')[0] || pm.getElementsByTagNameNS('*', 'name')[0];
                 const name = nameEl ? (nameEl.textContent || k.name) : k.name;
+                // extraer description si existe
+                const descEl = pm.getElementsByTagName('description')[0] || pm.getElementsByTagNameNS('*', 'description')[0];
+                const description = descEl ? (descEl.textContent || '') : '';
+                // extraer ExtendedData -> Data[@name]
+                const props: any = { name, description };
+                let dataEls = pm.getElementsByTagName('Data');
+                if (!dataEls || dataEls.length === 0) dataEls = pm.getElementsByTagNameNS('*', 'Data');
+                for (let d = 0; dataEls && d < dataEls.length; d++) {
+                  try {
+                    const de = dataEls[d];
+                    const key = de.getAttribute && de.getAttribute('name') ? de.getAttribute('name') : (de.getElementsByTagName('name')[0]?.textContent || null);
+                    const val = (de.getElementsByTagName('value')[0]?.textContent) || '';
+                    if (key) props[key] = val;
+                  } catch (e) {}
+                }
 
                 // Buscar Polygon
                 let polys = pm.getElementsByTagName('Polygon');
@@ -241,8 +410,8 @@ export class Home implements OnInit {
                       if (pts.length) rings.push(pts);
                     }
                   }
-                  if (rings.length) {
-                    fc.features.push({ type: 'Feature', properties: { name }, geometry: { type: 'Polygon', coordinates: rings } });
+                    if (rings.length) {
+                    fc.features.push({ type: 'Feature', properties: props, geometry: { type: 'Polygon', coordinates: rings } });
                     continue;
                   }
                 }
@@ -261,15 +430,15 @@ export class Home implements OnInit {
                         const parts = s.trim().split(',').map((v: string) => parseFloat(v));
                         return [parts[0], parts[1]];
                       }).filter((p: any) => Array.isArray(p) && p.length === 2);
-                      if (pts.length) {
+                        if (pts.length) {
                         // Si el primer y último punto no coinciden, cerrar el anillo para formar Polygon
                         const first = pts[0];
                         const last = pts[pts.length - 1];
                         if (first[0] !== last[0] || first[1] !== last[1]) {
                           const polyCoords = pts.concat([first]);
-                          fc.features.push({ type: 'Feature', properties: { name }, geometry: { type: 'Polygon', coordinates: [polyCoords] } });
+                          fc.features.push({ type: 'Feature', properties: props, geometry: { type: 'Polygon', coordinates: [polyCoords] } });
                         } else {
-                          fc.features.push({ type: 'Feature', properties: { name }, geometry: { type: 'Polygon', coordinates: [pts] } });
+                          fc.features.push({ type: 'Feature', properties: props, geometry: { type: 'Polygon', coordinates: [pts] } });
                         }
                       }
                     }
@@ -306,6 +475,17 @@ export class Home implements OnInit {
 
           // Guardar por nombre para poder hacer fitBounds al seleccionar
           try { this.polygonByName[k.name] = layer; } catch (e) {}
+
+          // Guardar features KML en índice y reconstruir regiones
+          try {
+            (gj.features || []).forEach((ft: any) => {
+              ft.properties = ft.properties || {};
+              if (!ft.properties.name) ft.properties.name = k.name;
+              this.kmlFeatures.push(ft);
+            });
+            console.log('KML cargado:', k.url, 'features=', (gj.features || []).length);
+            this.buildRegions();
+          } catch (e) {}
 
         })
         .catch(err => {
@@ -553,6 +733,4 @@ export class Home implements OnInit {
       try { this.map.dragging.enable(); } catch (e) {}
     }
   }
-
-
 }
