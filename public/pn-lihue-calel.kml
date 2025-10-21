@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>PN Lihué Calel</name>
+    <Style id="line-097138-1200-normal">
+      <LineStyle>
+        <color>ff387109</color>
+        <width>1.2</width>
+      </LineStyle>
+    </Style>
+    <Style id="line-097138-1200-highlight">
+      <LineStyle>
+        <color>ff387109</color>
+        <width>1.8</width>
+      </LineStyle>
+    </Style>
+    <StyleMap id="line-097138-1200">
+      <Pair>
+        <key>normal</key>
+        <styleUrl>#line-097138-1200-normal</styleUrl>
+      </Pair>
+      <Pair>
+        <key>highlight</key>
+        <styleUrl>#line-097138-1200-highlight</styleUrl>
+      </Pair>
+    </StyleMap>
+    <Placemark>
+      <name>PN Lihué Calel</name>
+      <description><![CDATA[descripción: <br>ROTULO: PN Lihué Calel]]></description>
+      <styleUrl>#line-097138-1200</styleUrl>
+      <ExtendedData>
+        <Data name="descripción">
+          <value/>
+        </Data>
+        <Data name="ROTULO">
+          <value>PN Lihué Calel</value>
+        </Data>
+      </ExtendedData>
+      <LineString>
+        <tessellate>1</tessellate>
+        <coordinates>
+          -65.458236,-37.807324,0
+          -65.459935,-37.872781,0
+          -65.499835,-37.872052,0
+          -65.499838,-37.871938,0
+          -65.545512,-37.871317,0
+          -65.549921,-38.051077,0
+          -65.663957,-38.048967,0
+          -65.656756,-37.822596,0
+          -65.544092,-37.825525,0
+          -65.543639,-37.819655,0
+          -65.543696,-37.819653,0
+          -65.543242,-37.806145,0
+          -65.542494,-37.780525,0
+          -65.457517,-37.781704,0
+          -65.458236,-37.807324,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+  </Document>
+</kml>

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>PN El Leoncito</name>
+    <Style id="line-097138-3519-normal">
+      <LineStyle>
+        <color>ff387109</color>
+        <width>3.519</width>
+      </LineStyle>
+    </Style>
+    <Style id="line-097138-3519-highlight">
+      <LineStyle>
+        <color>ff387109</color>
+        <width>5.2785</width>
+      </LineStyle>
+    </Style>
+    <StyleMap id="line-097138-3519">
+      <Pair>
+        <key>normal</key>
+        <styleUrl>#line-097138-3519-normal</styleUrl>
+      </Pair>
+      <Pair>
+        <key>highlight</key>
+        <styleUrl>#line-097138-3519-highlight</styleUrl>
+      </Pair>
+    </StyleMap>
+    <Placemark>
+      <name>PN El Leoncito</name>
+      <description><![CDATA[descripción: <br>Name: PN El Leoncito]]></description>
+      <styleUrl>#line-097138-3519</styleUrl>
+      <ExtendedData>
+        <Data name="descripción">
+          <value/>
+        </Data>
+        <Data name="Name">
+          <value>PN El Leoncito</value>
+        </Data>
+      </ExtendedData>
+      <LineString>
+        <tessellate>1</tessellate>
+        <coordinates>
+          -69.207565,-32.006912,0
+          -69.210283,-32.010578,0
+          -69.218404,-32.00766,0
+          -69.23554,-32.012283,0
+          -69.252245,-32.024038,0
+          -69.261561,-32.032541,0
+          -69.260769,-32.037885,0
+          -69.27856,-32.073326,0
+          -69.290193,-32.071431,0
+          -69.299403,-32.073625,0
+          -69.306786,-32.080128,0
+          -69.314983,-32.092092,0
+          -69.342617,-32.08261,0
+          -69.379776,-32.064237,0
+          -69.384043,-32.069692,0
+          -69.393077,-32.077418,0
+          -69.400395,-32.075035,0
+          -69.406645,-32.077285,0
+          -69.412982,-32.065032,0
+          -69.36992,-31.724184,0
+          -69.301883,-31.714809,0
+          -69.15982,-31.727067,0
+          -69.147441,-31.735318,0
+          -69.124986,-31.807127,0
+          -69.116161,-31.823138,0
+          -69.101361,-31.84723,0
+          -69.109538,-31.892938,0
+          -69.115277,-31.926818,0
+          -69.118072,-31.970962,0
+          -69.130424,-31.997571,0
+          -69.182019,-31.997571,0
+          -69.201524,-32.003197,0
+          -69.207565,-32.006912,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+  </Document>
+</kml>

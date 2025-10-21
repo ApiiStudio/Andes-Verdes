@@ -1,0 +1,13 @@
+.florafauna {
+    display: block;
+    height: 100vh;
+    gap: 20px;
+    margin-left: 50px;
+    margin-top: 30px;
+}
+
+.tarjetas {
+    display: grid;
+    gap: 20px;
+    margin-top: 30px;
+}

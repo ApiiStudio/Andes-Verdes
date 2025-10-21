@@ -76,7 +76,7 @@
 .image-column {
     width: 100%;
     height: 100%;
-    background-image: url('/Imagenes/imagen-login.jpg');
+    background-image: url('/imagen-login.jpg');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
