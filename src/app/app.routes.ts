@@ -8,7 +8,7 @@ import { AdminDashboard } from './pages/admin-dashboard/admin-dashboard';
 import { PanelControl } from './pages/admin-dashboard/panel-control/panel-control';
 import { Parques } from './pages/admin-dashboard/parques/parques';
 import { Fauna } from './pages/admin-dashboard/fauna/fauna';
-import { Flora} from './pages/admin-dashboard/flora/flora';
+import { Flora } from './pages/admin-dashboard/flora/flora';
 import { Usuarios } from './pages/admin-dashboard/usuarios/usuarios';
 
 
