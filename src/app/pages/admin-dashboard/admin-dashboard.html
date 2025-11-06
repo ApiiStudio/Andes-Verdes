@@ -1,28 +1,22 @@
 <div class="dashboard-container">
-  <!-- Sidebar -->
   <aside class="sidebar">
-    <div class="brand">
-      <h2>🌿 Andes Verdes</h2>
-      <p>Panel de Administración</p>
-    </div>
-
-    <nav class="menu">
+    <h2>🌿 Andes Verdes</h2>
+    <nav>
       <ul>
-        <li><a routerLink="/panel-control" routerLinkActive="active">📊 Panel de Control</a></li>
-        <li><a routerLink="/parques" routerLinkActive="active">🏞️ Gestión de Parques</a></li>
-        <li><a routerLink="/fauna" routerLinkActive="active">🦌 Fauna</a></li>
-        <li><a routerLink="/flora" routerLinkActive="active">🌺 Flora</a></li>
-        <li><a routerLink="/usuarios" routerLinkActive="active">👥 Usuarios</a></li>
+        <!-- rutas relativas: sin "admin/" porque el componente ya se monta en /admin -->
+        <li><a routerLink="panel-control" routerLinkActive="active">📊 Panel de Control</a></li>
+        <li><a routerLink="parques" routerLinkActive="active">🏞️ Gestión de Parques</a></li>
+        <li><a routerLink="fauna" routerLinkActive="active">🦌 Fauna</a></li>
+        <li><a routerLink="flora" routerLinkActive="active">🌺 Flora</a></li>
+        <li><a routerLink="usuarios" routerLinkActive="active">👥 Usuarios</a></li>
       </ul>
     </nav>
-
-    <footer class="sidebar-footer">
-      <p>Versión 2.0 — Innovador 🌎</p>
-    </footer>
   </aside>
 
-  <!-- Contenido dinámico -->
-  <main class="main-content">
-   
-  </main>
+  <div class="admin-layout">
+    <!-- evita duplicar sidebars; este router-outlet recibe las vistas hijas -->
+    <div class="admin-content">
+  
+    </div>
+  </div>
 </div>
