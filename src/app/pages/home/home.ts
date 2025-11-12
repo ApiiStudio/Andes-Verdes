@@ -88,7 +88,6 @@ export class Home implements OnInit {
       return s;
     };
 
-    // Listas exactas proporcionadas por el usuario (normalizadas)
     const manual: any = {
       'noa': ['pn baritu','el rey','los cardones','aconquija','calilegua','copo'],
       'nea': ['iguazu','chaco','el impenetrable','laguna el palmar','ibera','mburucuya','rio pilcomayo','río pilcomayo'],
@@ -105,10 +104,9 @@ export class Home implements OnInit {
     });
 
     // Deduplicar: preferir features del GeoJSON (this.allParques) y luego KMLs
-    // Deduplicate by a stronger base name key. We'll keep a bucket with preferred feature.
     const dedup: { [key: string]: { feature: any, score: number } } = {};
     const scoreFeature = (ft: any) => {
-      // prefer polygons/lines over points, prefer features from this.allParques
+      // Polígonos en el mapa
       let score = 0;
       if (ft.geometry) {
         const t = ft.geometry.type || '';
