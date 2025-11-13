@@ -8,7 +8,7 @@ import { Fauna } from './pages/admin-dashboard/fauna/fauna';
 import { Flora } from './pages/admin-dashboard/flora/flora';
 import { Usuarios } from './pages/admin-dashboard/usuarios/usuarios';
 
-const routes: Routes = [
+export const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
   { path: 'home', component: Home },
 

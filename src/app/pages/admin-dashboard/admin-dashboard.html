@@ -1,14 +1,17 @@
 <div class="dashboard-container">
   <aside class="sidebar">
-    <h2>🌿 Andes Verdes</h2>
-    <nav>
+    <div class="brand">
+      <h2>Andes Verdes</h2>
+      <small>Administración</small>
+    </div>
+    <nav class="menu">
       <ul>
         <!-- rutas relativas: sin "admin/" porque el componente ya se monta en /admin -->
-        <li><a routerLink="panel-control" routerLinkActive="active">📊 Panel de Control</a></li>
-        <li><a routerLink="parques" routerLinkActive="active">🏞️ Gestión de Parques</a></li>
-        <li><a routerLink="fauna" routerLinkActive="active">🦌 Fauna</a></li>
-        <li><a routerLink="flora" routerLinkActive="active">🌺 Flora</a></li>
-        <li><a routerLink="usuarios" routerLinkActive="active">👥 Usuarios</a></li>
+        <li><a routerLink="panel-control" routerLinkActive="active"><span class="icon"></span>Panel</a></li>
+        <li><a routerLink="parques" routerLinkActive="active"><span class="icon"></span>Parques</a></li>
+        <li><a routerLink="fauna" routerLinkActive="active"><span class="icon"></span>Fauna</a></li>
+        <li><a routerLink="flora" routerLinkActive="active"><span class="icon"></span>Flora</a></li>
+        <li><a routerLink="usuarios" routerLinkActive="active"><span class="icon"></span>Usuarios</a></li>
       </ul>
     </nav>
   </aside>
@@ -16,7 +19,27 @@
   <div class="admin-layout">
     <!-- evita duplicar sidebars; este router-outlet recibe las vistas hijas -->
     <div class="admin-content">
-  
+      <header class="topbar">
+        <!-- MARCO SUPERIOR: solo el buscador en el header, sin resumen -->
+        <div class="panel-frame">
+          <div class="search">
+            <input type="text" placeholder="Buscar parques, especies, usuarios..." />
+          </div>
+          <div class="actions">
+            <button class="add-btn dark" routerLink="parques">Agregar parque</button>
+          </div>
+        </div>
+      </header>
+
+      <main class="main-content">
+        <!-- Zona superior del contenido principal (KPIs y resumen se añadirán aquí paso a paso) -->
+        <div class="panel-main">
+          <!-- KPIs: se eliminaron temporalmente para rediseño iterativo -->
+        </div>
+
+        <router-outlet></router-outlet>
+      </main>
+
     </div>
   </div>
 </div>
