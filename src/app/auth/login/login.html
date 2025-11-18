@@ -4,29 +4,73 @@
         <div class="col-4">
             <!-- Formulario Inicio de Sesión -->
             <div class="form-panel">
-            <form class="form-container" action="">
-                <h2>Iniciar Sesión</h2>
-                <br>
-                <label for="InputEmail" class="form-label login-label">Correo electrónico</label>
-                <input type="email" class="form-control" id="InputEmail" formControlName="email" />
-                <label for="InputPassword" class="form-label login-label">Contraseña</label>
-                <input type="password" class="form-control" id="InputPassword" formControlName="password" />
-                <br>
-                <button type="submit" class="btn login-btn w-100">Iniciar sesión</button>
-                <!-- Divider -->
-                <div class="divider">
-                    <span class="divider-text">O</span>
-                </div>
-                <!-- Continuar con terceros -->
-                <button type="submit" class="btn login-btn-sec w-100">Continuar con Google</button>
-                <button type="submit" class="btn login-btn-sec w-100">Continuar con Apple</button>
-                <br>
-                <!-- Registrar -->
-                <p class="login-text">
-                    ¿No tienes una cuenta?
-                    <a routerLink="/register">Crear cuenta P.N.</a>
-                </p>
-            </form>
+                <form [formGroup]="loginForm" (ngSubmit)="login()" class="form-container">
+                    <h2>Iniciar Sesión</h2>
+                    <br>
+                    <div class="mb-3" style="position: relative;" #emailContainer>
+                        <label for="exampleInputEmail1" class="form-label login-label">Correo electrónico</label>
+                        <input type="email" class="form-control" id="exampleInputEmail1" formControlName="email"
+                            [attr.autocomplete]="'off'" (focus)="showSuggestions = true" (blur)="hideSuggestions()"
+                            (input)="onEmailInput()" />
+                        <!-- Sugerencias personalizadas -->
+                        @if (showSuggestions) {
+                        <ul class="email-suggestions-list">
+                            @for (suggestion of emailSuggestions; track suggestion) {
+                            <li (mousedown)="applySuggestion(suggestion)">
+                                {{ email?.value?.split('@')[0] || '' }}{{ suggestion }}
+                            </li>
+                            }
+                        </ul>
+                        }
+                        <!-- Validaciones -->
+                        @if (email?.touched && email?.hasError('required')) {
+                        <p class="text-danger mt-1">El correo electrónico es requerido.</p>
+                        }
+                        @if (email?.touched && email?.hasError('email')) {
+                        <p class="text-danger mt-1">El correo electrónico no es válido.</p>
+                        }
+                        @if (email?.touched && email?.hasError('maxlength')) {
+                        <p class="text-danger mt-1">El correo electrónico no puede tener más de 100 caracteres.</p>
+                        }
+                        @if (email?.touched && email?.hasError('pattern')) {
+                        <p class="text-danger mt-1">El correo electrónico no es válido.</p>
+                        }
+                    </div>
+                    <!--Contraseña-->
+                    <div class="mb-3">
+                        <label for="exampleInputPassword1" class="form-label register-label">Contraseña</label>
+                        <div class="input-group">
+                            <input [type]="showPassword ? 'text' : 'password'" class="form-control"
+                                id="exampleInputPassword1" formControlName="password" [attr.autocomplete]="'off'"
+                                (input)="onPasswordInput()" />
+                            <!--Visibilidad Contraseña-->
+                            <button type="button" class="btn btn-outline-secondary" (click)="togglePasswordVisibility()"
+                                tabindex="-1">
+                                <i class="fa-solid fa-eye-slash"></i>
+                                <i class="bi" [attr.class]="showPassword ? 'bi bi-eye-slash' : 'bi bi-eye'"></i>
+                            </button>
+                        </div>
+                        @if (password?.errors && password?.touched) {
+                        @if (password?.hasError('required')) {
+                        <p class="text-danger mt-1">La contraseña es requerida.</p>
+                        }
+                        }
+                    </div>
+                    <button type="submit" class="btn login-btn w-100">Iniciar sesión</button>
+                    <!-- Divider -->
+                    <div class="divider">
+                        <span class="divider-text">O</span>
+                    </div>
+                    <!-- Continuar con terceros -->
+                    <button type="submit" class="btn login-btn-sec w-100">Continuar con Google</button>
+                    <button type="submit" class="btn login-btn-sec w-100">Continuar con Apple</button>
+                    <br>
+                    <!-- Registrar -->
+                    <p class="login-text">
+                        ¿No tienes una cuenta?
+                        <a routerLink="/register">Crear cuenta P.N.</a>
+                    </p>
+                </form>
             </div>
         </div>
         <!-- Contenedor Imágen -->

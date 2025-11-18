@@ -1,7 +1,11 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, ElementRef, ViewChild, } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { Observable } from 'rxjs';
+import { AuthSignupService } from '../../services/auth-signup/auth-signup';
+import { SignupRequest } from '../../services/auth-signup/signup-requests';
 import { CommonModule } from '@angular/common';
+
 
 @Component({
   selector: 'app-register',
@@ -9,41 +13,44 @@ import { CommonModule } from '@angular/common';
   templateUrl: './register.html',
   styleUrl: './register.css'
 })
-export class Register {
+export class Register implements AfterViewInit, OnDestroy {
   signupError: string = "";
   registerForm: FormGroup;
   showSuggestions = false;
-  emailSuggestions = ['@gmail.com', '@yahoo.com', '@outlook.com', '@hotmail.com', '@icloud.com'];
+  emailSuggestions = ['@gmail.com', '@outlook.com', '@hotmail.com', '@yahoo.com', '@icloud.com'];
   http: any;
 
   constructor(
     private formBuilder: FormBuilder,
     private router: Router,
-
+    private authSignupService: AuthSignupService
   ) {
     this.registerForm = this.formBuilder.group({
-      name: ['', [Validators.required, Validators.minLength(3)]],
+      name: ['', Validators.required],
+      surname: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, this.passwordComplexityValidator]],
-      confirmPassword: [Validators.required]
+      confirmPassword: ['', Validators.required]
     }, {
       validators: this.passwordMatchValidator
     });
   }
 
+
+  // Valida la contraseña
   passwordComplexityValidator(control: any) {
     const value = control.value || '';
     const errors: any = {};
 
-    if (value.length < 8) errors.minLength = 'La contraseña debe tener al menos 8 caracteres.';
-    if (!/[A-Z]/.test(value)) errors.uppercase = 'La contraseña debe contener al menos una letra mayúscula.';
-    if (!/[0-9]/.test(value)) errors.number = 'La contraseña debe contener al menos un número.';
-    if (!/[!@#$%^&*(),.?":{}|<>]/.test(value)) errors.specialChar = 'La contraseña debe contener al menos un carácter especial.';
+    if (value.length < 8) errors.minLength = true;
+    if (!/[A-Z]/.test(value)) errors.uppercase = true;
+    if (!/[0-9]/.test(value)) errors.number = true;
 
-    return Object.keys(errors).length ? { complexity: errors } : null;
+    return Object.keys(errors).length ? errors : null;
   }
 
-  getPasswordErrors(): string | null {
+  // Mensaje para la contraseña
+  getPasswordError(): string | null {
     const control = this.password;
     if (control?.touched && control?.errors) {
       const errors = control.errors;
@@ -51,23 +58,27 @@ export class Register {
     return null;
   }
 
+  // Requisitos de la contraseña
   passwordRules = [
     { label: 'Al menos 8 caracteres', valid: false },
     { label: 'Al menos 1 número', valid: false },
     { label: 'Al menos 1 letra mayúscula', valid: false },
   ];
 
+  // Método para validar los requisitos de la contraseña
   onPasswordInput(): void {
     const value: string = this.registerForm.get('password')?.value || '';
 
-    this.passwordRules[0].valid = value.length >= 8;
-    this.passwordRules[1].valid = /[0-9]/.test(value);
+    // Reglas visuales ya existentes
+    this.passwordRules[0].valid = value.length >= 8 && value.length <= 128;
+    this.passwordRules[1].valid = /\d/.test(value);
     this.passwordRules[2].valid = /[A-Z]/.test(value);
 
+    // Nueva: fuerza
     this.evaluatePasswordStrength(value);
   }
 
-  passwordStrength: string = 'Débil';
+  passwordStrength: string = 'débil';
 
   evaluatePasswordStrength(password: string): void {
     let score = 0;
@@ -87,12 +98,12 @@ export class Register {
     }
   }
 
-
+  // Métodos para obtener los controles del formulario
   get name() {
     return this.registerForm.get('name');
   }
   get surname() {
-    return this.registerForm.get('surname');
+    return this.registerForm.get('surname')
   }
   get email() {
     return this.registerForm.get('email');
@@ -104,16 +115,63 @@ export class Register {
     return this.registerForm.get('confirmPassword');
   }
 
-  passwordMatchValidator(FormGroup: FormGroup) {
-    return FormGroup.get('password')?.value === FormGroup.get('confirmPassword')?.value ? null : { mismatch: true };
+  signup() {
+    if (this.registerForm.valid) {
+      const { confirmPassword, ...signupData } = this.registerForm.value;
+
+      console.log("Datos a enviar:", signupData);
+
+      this.authSignupService.signup(signupData as SignupRequest).subscribe({
+        next: (userData) => {
+          console.log("datos del servicio", userData);
+          this.router.navigateByUrl('/inicio');
+          this.registerForm.reset();
+        },
+        error: (errorData) => {
+          // Manejo robusto para evitar el error de undefined
+          const detalle = errorData?.error?.detail?.toLowerCase?.() || '';
+          if (detalle.includes('ya está registrado')) {
+            this.signupError = 'Este correo electrónico ya está registrado.';
+            this.email?.setErrors({ emailExists: true });
+            this.email?.markAsTouched();
+          } else {
+            this.signupError = 'Ocurrió un error al registrar. Intenta nuevamente.';
+          }
+        }
+      });
+    }
   }
 
+  // Validador coincidencia de contraseñas
+  passwordMatchValidator(formGroup: FormGroup) {
+    return formGroup.get('password')?.value === formGroup.get('confirmPassword')?.value ? null : { mismatch: true };
+  }
+
+  // Botón para enviar el formulario
+  onSubmit(event: Event) {
+    if (this.registerForm.valid) {
+      const signupData: SignupRequest = this.registerForm.value;
+      this.authSignupService.signup(signupData).subscribe({
+        next: (res) => {
+          // Registro exitoso, redirige o muestra mensaje
+          this.router.navigateByUrl('/signup');
+        },
+        error: (err) => {
+          // Maneja el error (por ejemplo, email ya registrado)
+          this.signupError = 'Error al registrar: ' + (err.error?.detail || 'Intenta de nuevo');
+        }
+      });
+    } else {
+      console.error("Formulario inválido");
+    }
+  }
+
+  // Método para cambiar la visibilidad de la contraseña
   showPassword = false;
 
   togglePasswordVisibility(): void {
     this.showPassword = !this.showPassword;
   }
-
   onEmailInput() {
     this.showSuggestions = true;
     this.signupError = '';
@@ -125,22 +183,24 @@ export class Register {
     }
   }
 
+
+  // Sugerencia de correo electrónico
   applySuggestion(suffix: string) {
     const value = this.email?.value?.split('@')[0] || '';
     this.email?.setValue(value + suffix);
     this.showSuggestions = false;
   }
 
+  // Ocultar sugerencias de correo electrónico
   hideSuggestions() {
     setTimeout(() => this.showSuggestions = false, 200);
   }
-
   @ViewChild('emailContainer') emailContainer!: ElementRef;
 
-  private clicklistener: any;
+  private clickListener: any;
 
   ngAfterViewInit() {
-    this.clicklistener = (event: MouseEvent) => {
+    this.clickListener = (event: MouseEvent) => {
       if (
         this.showSuggestions &&
         this.emailContainer &&
@@ -149,37 +209,11 @@ export class Register {
         this.showSuggestions = false;
       }
     };
-    document.addEventListener('click', this.clicklistener);
+    document.addEventListener('mousedown', this.clickListener);
   }
 
   ngOnDestroy() {
-    document.removeEventListener('mousedown', this.clicklistener);
+    document.removeEventListener('mousedown', this.clickListener);
   }
 
-  signup() {
-    if (this.registerForm.valid) {
-      const { confirmPassword, ...signupData } = this.registerForm.value;
-
-      console.log("Datos a enviar:", signupData);
-
-      //this.authSignupService.signup(signupData as SignupRequest).subscribe({
-        //next: (userData) => {
-          //console.log("datos del servicio", userData);
-          //this.router.navigateByUrl('/inicio');
-          //this.registerForm.reset();
-        //},
-        //error: (errorData) => {
-          // Manejo robusto para evitar el error de undefined
-          //const detalle = errorData?.error?.detail?.toLowerCase?.() || '';
-          //if (detalle.includes('ya está registrado')) {
-            //this.signupError = 'Este correo electrónico ya está registrado.';
-            //this.email?.setErrors({ emailExists: true });
-            //this.email?.markAsTouched();
-          //} else {
-            //this.signupError = 'Ocurrió un error al registrar. Intenta nuevamente.';
-          //}
-        //}
-      //});
-    }
-  }
 }

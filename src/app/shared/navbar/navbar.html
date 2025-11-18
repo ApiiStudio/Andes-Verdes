@@ -15,9 +15,45 @@
                 <li class="nav-item">
                     <a class="nav-link" routerLink="/sobre-parques">Parque</a>
                 </li>
+                @if (isAdmin) {
                 <li class="nav-item">
-                    <a class="nav-link" routerLink="/">Cuenta</a>
+                    <a class="nav-link" routerLink="/admin">Admin</a>
                 </li>
+                }
+            </ul>
+            <ul class="navbar-nav ms-auto mb-2 mb-lg-0 margin-right">
+                @if (userLoginOn && userData && userData.email) {
+                <!-- Cuenta del usuario -->
+                <li class="nav-item dropdown">
+                    <a href="#" data-bs-toggle="dropdown" class="nav-link ms-2 d-flex align-items-center gap-2">
+                        <i class="fa-solid fa-user fs-5"></i>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-end rounded shadow-sm mt-3 p-2 bg-light border-0"
+                        style="min-width: 200px">
+                        <div class="px-3 py-2">
+                            <h6 class="mb-0 fw-semibold">¡Bienvenido, {{ userName }}!</h6>
+                        </div>
+                        <hr class="my-1" />
+                        <a routerLink="/pedidos-cliente"
+                            class="dropdown-item d-flex align-items-center gap-2 text-secondary">
+                            <i class="fa-solid fa-life-ring"></i>
+                            <span>Pedidos</span>
+                        </a>
+                        <a href="#" class="dropdown-item d-flex align-items-center gap-2 text-secondary"
+                            (click)="logout()">
+                            <i class="fa-solid fa-right-from-bracket"></i>
+                            <span>Salir</span>
+                        </a>
+                    </div>
+                </li>
+                } @else {
+                <li class="nav-item">
+                    <a class="nav-link" routerLink="/login">Iniciar Sesión</a>
+                </li>
+                <li class="nav-item register-item margin-right">
+                    <a class="nav-link register-link ms-2" routerLink="/register">Registrarse</a>
+                </li>
+                }
             </ul>
         </div>
     </div>
