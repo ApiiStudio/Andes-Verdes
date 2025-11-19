@@ -1,6 +1,7 @@
 import { Component, OnInit, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ApiService } from '../../../services/api.service';
 
 @Component({
   selector: 'app-parques-admin',
@@ -94,6 +95,7 @@ import { FormsModule } from '@angular/forms';
 })
 export class Parques implements OnInit, AfterViewInit {
   @ViewChild('mapContainer', { static: false }) mapContainer!: ElementRef;
+  constructor(private api: ApiService) {}
 
   parks: Array<any> = [];
   editing: any = null;
@@ -117,15 +119,37 @@ export class Parques implements OnInit, AfterViewInit {
   }
 
   private loadParks() {
+    // try backend first
+    this.api.getParks().subscribe({
+      next: (data: any) => {
+        if (Array.isArray(data)) {
+          this.parks = data;
+          this.saveToStorage();
+          this.refreshMarkers();
+          this.applyFilter();
+          return;
+        }
+        // otherwise fallback to storage
+        this.loadFromStorageOrGeojson();
+      },
+      error: (err: any) => {
+        console.warn('API parks error, fallback to local', err);
+        this.loadFromStorageOrGeojson();
+      }
+    });
+  }
+
+  private loadFromStorageOrGeojson() {
     const saved = localStorage.getItem('av_parks');
     if (saved) {
       try {
         this.parks = JSON.parse(saved);
+        this.refreshMarkers();
+        this.applyFilter();
         return;
       } catch (e) {}
     }
-
-    // fallback: cargar GeoJSON público y tomar algunas features como parques iniciales
+    // fallback to public GeoJSON
     fetch('/parques-argentina.geojson')
       .then((r) => r.json())
       .then((g) => {
@@ -244,17 +268,49 @@ export class Parques implements OnInit, AfterViewInit {
     if (!this.title) return alert('Ingrese un título');
     if (!this.parkId) return alert('Ingrese un ID');
     const item = { id: this.parkId, title: this.title, subtitle: this.subtitle };
-    if (this.editing) {
-      this.parks[this.editingIndex as number] = item;
-      this.editing = null;
-      this.editingIndex = null;
-    } else {
-      this.parks.unshift(item);
-    }
-    this.clearForm();
-    this.saveToStorage();
-    this.refreshMarkers();
-    this.applyFilter();
+      if (this.editing) {
+        // update via API
+        this.api.updateParques(this.parkId, item).subscribe({
+          next: (res: any) => {
+            this.parks[this.editingIndex as number] = res || item;
+            this.editing = null;
+            this.editingIndex = null;
+            this.clearForm();
+            this.saveToStorage();
+            this.refreshMarkers();
+            this.applyFilter();
+          },
+          error: () => {
+            // fallback: local update
+            this.parks[this.editingIndex as number] = item;
+            this.editing = null;
+            this.editingIndex = null;
+            this.clearForm();
+            this.saveToStorage();
+            this.refreshMarkers();
+            this.applyFilter();
+          }
+        });
+      } else {
+        // create via API
+        this.api.createParques(item).subscribe({
+          next: (created: any) => {
+            this.parks.unshift(created || item);
+            this.clearForm();
+            this.saveToStorage();
+            this.refreshMarkers();
+            this.applyFilter();
+          },
+          error: () => {
+            // fallback local
+            this.parks.unshift(item);
+            this.clearForm();
+            this.saveToStorage();
+            this.refreshMarkers();
+            this.applyFilter();
+          }
+        });
+      }
   }
 
   clearForm() {
@@ -279,10 +335,29 @@ export class Parques implements OnInit, AfterViewInit {
 
   remove(i: number) {
     if (!confirm('Eliminar parque?')) return;
-    this.parks.splice(i, 1);
-    this.saveToStorage();
-    this.refreshMarkers();
-    this.applyFilter();
+    const id = this.parks[i]?.id;
+    if (id) {
+      this.api.deleteParques(id).subscribe({
+        next: (_res: any) => {
+          this.parks.splice(i, 1);
+          this.saveToStorage();
+          this.refreshMarkers();
+          this.applyFilter();
+        },
+        error: (_err: any) => {
+          // fallback local
+          this.parks.splice(i, 1);
+          this.saveToStorage();
+          this.refreshMarkers();
+          this.applyFilter();
+        }
+      });
+    } else {
+      this.parks.splice(i, 1);
+      this.saveToStorage();
+      this.refreshMarkers();
+      this.applyFilter();
+    }
   }
 
   zoomTo(p: any) {

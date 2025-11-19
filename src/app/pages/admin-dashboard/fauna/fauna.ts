@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ApiService } from '../../../services/api.service';
 
 @Component({
   selector: 'app-fauna-admin',
@@ -34,16 +35,33 @@ import { FormsModule } from '@angular/forms';
   imports: [CommonModule, FormsModule]
 })
 export class Fauna {
-  species: Array<{ name: string; description: string }> = [];
+  species: Array<{ id?: any; name: string; description: string }> = [];
   name = '';
   description = '';
   editing: number | null = null;
 
-  constructor() {
+  constructor(private api: ApiService) {
     this.load();
   }
 
   load() {
+    // try backend first
+    this.api.getFaunas().subscribe({
+      next: (data: any) => {
+        if (Array.isArray(data)) {
+          this.species = data;
+          this.saveToStorage();
+        } else {
+          this.loadFromStorage();
+        }
+      },
+      error: (_err: any) => {
+        this.loadFromStorage();
+      }
+    });
+  }
+
+  private loadFromStorage() {
     const s = localStorage.getItem('av_fauna');
     if (s) {
       try {
@@ -62,14 +80,39 @@ export class Fauna {
     if (!this.name) return alert('Ingrese nombre');
     const item = { name: this.name, description: this.description };
     if (this.editing != null) {
-      this.species[this.editing] = item;
-      this.editing = null;
+      const id = this.editing;
+      this.api.updateFaunas(id, item).subscribe({
+        next: (res: any) => {
+          this.species[id] = res || item;
+          this.editing = null;
+          this.name = '';
+          this.description = '';
+          this.saveToStorage();
+        },
+        error: () => {
+          this.species[id] = item;
+          this.editing = null;
+          this.name = '';
+          this.description = '';
+          this.saveToStorage();
+        }
+      });
     } else {
-      this.species.unshift(item);
+      this.api.createFaunas(item).subscribe({
+        next: (created: any) => {
+          this.species.unshift(created || item);
+          this.name = '';
+          this.description = '';
+          this.saveToStorage();
+        },
+        error: () => {
+          this.species.unshift(item);
+          this.name = '';
+          this.description = '';
+          this.saveToStorage();
+        }
+      });
     }
-    this.name = '';
-    this.description = '';
-    this.saveToStorage();
   }
 
   edit(s: any, i: number) {
@@ -86,7 +129,16 @@ export class Fauna {
 
   remove(i: number) {
     if (!confirm('Eliminar especie?')) return;
-    this.species.splice(i, 1);
-    this.saveToStorage();
+    const id = this.species[i]?.id ?? i;
+    this.api.deleteFaunas(id).subscribe({
+      next: () => {
+        this.species.splice(i, 1);
+        this.saveToStorage();
+      },
+      error: () => {
+        this.species.splice(i, 1);
+        this.saveToStorage();
+      }
+    });
   }
 }

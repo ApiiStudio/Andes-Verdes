@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ApiService } from '../../../services/api.service';
 
 @Component({
   selector: 'app-usuarios-admin',
@@ -37,8 +38,9 @@ import { CommonModule } from '@angular/common';
   imports: [CommonModule]
 })
 export class Usuarios implements OnInit {
-  users: Array<{ username: string; email?: string }> = [];
+  users: Array<{ id?: any; username: string; email?: string }> = [];
   connected: string[] = [];
+  constructor(private api: ApiService) {}
 
   ngOnInit(): void {
     this.loadUsers();
@@ -47,6 +49,20 @@ export class Usuarios implements OnInit {
   }
 
   loadUsers() {
+    this.api.getUsuarios().subscribe({
+      next: (data: any) => {
+        if (Array.isArray(data)) {
+          this.users = data;
+          localStorage.setItem('av_users', JSON.stringify(this.users));
+        } else {
+          this.loadFromStorage();
+        }
+      },
+      error: () => this.loadFromStorage()
+    });
+  }
+
+  private loadFromStorage() {
     const s = localStorage.getItem('av_users');
     if (s) {
       try {
@@ -55,7 +71,6 @@ export class Usuarios implements OnInit {
         this.users = [];
       }
     } else {
-      // seed demo
       this.users = [
         { username: 'admin', email: 'admin@andes.local' },
         { username: 'usuario1', email: 'u1@andes.local' }
@@ -66,7 +81,17 @@ export class Usuarios implements OnInit {
 
   remove(username: string) {
     if (!confirm('Eliminar usuario ' + username + '?')) return;
-    this.users = this.users.filter((u) => u.username !== username);
-    localStorage.setItem('av_users', JSON.stringify(this.users));
+    const idx = this.users.findIndex((u) => u.username === username);
+    const id = this.users[idx]?.id ?? username;
+    this.api.deleteUsuarios(id).subscribe({
+      next: () => {
+        this.users = this.users.filter((u) => u.username !== username);
+        localStorage.setItem('av_users', JSON.stringify(this.users));
+      },
+      error: () => {
+        this.users = this.users.filter((u) => u.username !== username);
+        localStorage.setItem('av_users', JSON.stringify(this.users));
+      }
+    });
   }
 }

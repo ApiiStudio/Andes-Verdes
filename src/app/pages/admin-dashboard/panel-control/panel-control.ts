@@ -11,7 +11,6 @@ import { CommonModule } from '@angular/common';
 
       <div class="kpi-row">
         <div class="kpi-chip">
-          <div class="kpi-icon">👥</div>
           <div>
             <div class="value">{{ usersCount }}</div>
             <div class="label">Usuarios</div>
@@ -19,7 +18,6 @@ import { CommonModule } from '@angular/common';
         </div>
 
         <div class="kpi-chip">
-          <div class="kpi-icon">🏞️</div>
           <div>
             <div class="value">{{ parksCount }}</div>
             <div class="label">Parques</div>
@@ -27,7 +25,6 @@ import { CommonModule } from '@angular/common';
         </div>
 
         <div class="kpi-chip">
-          <div class="kpi-icon">🦌</div>
           <div>
             <div class="value">{{ faunaCount }}</div>
             <div class="label">Fauna</div>
@@ -35,7 +32,6 @@ import { CommonModule } from '@angular/common';
         </div>
 
         <div class="kpi-chip">
-          <div class="kpi-icon">🌿</div>
           <div>
             <div class="value">{{ floraCount }}</div>
             <div class="label">Flora</div>
