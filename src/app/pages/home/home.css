@@ -139,6 +139,18 @@
   position: relative;
 }
 
+/* Alinea el acordeón de regiones con el mapa y añade separación */
+.map-frame { margin-bottom: 18px; }
+.accordion-container {
+  width: 93.8%;
+  margin: 18px auto 0;
+  display: flex;
+  justify-content: center;
+}
+.accordion-container .accordion {
+  width: 100%;
+}
+
 .map-placeholder {
   position: absolute;
   inset: 0;

@@ -48,11 +48,11 @@
 }
 
 .margin-left{
-    margin-left: 70px;
+    margin-left: 50px;
 }
 
 .margin-right{
-    margin-right: 70px;
+    margin-right: 23.5px;
 }
 
 .navbar-collapse {
@@ -70,4 +70,9 @@
 .dropdown-item i{
     font-size: 1.1rem;
     margin-right: .75rem;
+}
+
+.navbar .nav-item .nav-link {
+    margin: 0 6px !important;
+    white-space: nowrap; /* <- obliga a mantenerlo en una sola línea */
 }
