@@ -73,8 +73,8 @@
                         <ul class="region-list">
                             @for (p of region.parks; track p.properties.name) {
                             <li (click)="selectParque(p)" class="region-item">
-                                {{ p.properties?.name || p.properties?.ROTULO || 'Parque' }}
-                                <small class="text-muted"> - {{ p.properties?.region || p.properties?.description || p.properties?.provincia || p.properties?.PROVINCIA || p.properties?.category }}</small>
+                                {{ getDisplayName(p) }}
+                                <small class="text-muted"> - {{ getProvince(p) }}</small>
                             </li>
                             }
                         </ul>
