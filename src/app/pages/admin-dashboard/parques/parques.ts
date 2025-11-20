@@ -35,14 +35,12 @@ import { ApiService } from '../../../services/api.service';
                   <tr>
                     <th>Nombre</th>
                     <th>Descripción</th>
-                    <th>Coordenadas</th>
-                    <th>Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr *ngFor="let p of filteredParks; let i = index">
-                      <td>{{ p.title || p.name }}</td>
-                      <td class="muted">{{ p.subtitle || p.description }}</td>
+                      <td>{{ p.titulo || p.name }}</td>
+                      <td class="muted">{{ p.subtitulo || p.description }}</td>
                       <td>{{ p.id || ('#' + i) }}</td>
                     <td>
                       <button class="btn" (click)="zoomTo(p)">Ver</button>
@@ -77,10 +75,6 @@ import { ApiService } from '../../../services/api.service';
             <label>Subtítulo</label>
             <input [(ngModel)]="subtitle" />
           </div>
-          <div class="field-row small">
-            <label>ID</label>
-            <input type="text" [(ngModel)]="parkId" />
-          </div>
           <div class="form-actions">
             <button class="add-btn" (click)="saveFromModal()">{{ editing ? 'Guardar' : 'Agregar' }}</button>
             <button class="btn" (click)="closeModal()">Cancelar</button>
@@ -102,7 +96,6 @@ export class Parques implements OnInit, AfterViewInit {
   editingIndex: number | null = null;
   title = '';
   subtitle = '';
-  parkId: string | number = '';
 
   map: any = null;
   markerLayer: any = null;
@@ -234,7 +227,6 @@ export class Parques implements OnInit, AfterViewInit {
   saveFromModal() {
     // basic validation: require title and id
     if (!this.title) return alert('Ingrese un título');
-    if (!this.parkId) return alert('Ingrese un ID');
     this.save();
     this.closeModal();
   }
@@ -264,68 +256,71 @@ export class Parques implements OnInit, AfterViewInit {
     } catch (e) {}
   }
 
-  save() {
-    if (!this.title) return alert('Ingrese un título');
-    if (!this.parkId) return alert('Ingrese un ID');
-    const item = { id: this.parkId, title: this.title, subtitle: this.subtitle };
-      if (this.editing) {
-        // update via API
-        this.api.updateParques(this.parkId, item).subscribe({
-          next: (res: any) => {
-            this.parks[this.editingIndex as number] = res || item;
-            this.editing = null;
-            this.editingIndex = null;
-            this.clearForm();
-            this.saveToStorage();
-            this.refreshMarkers();
-            this.applyFilter();
-          },
-          error: () => {
-            // fallback: local update
-            this.parks[this.editingIndex as number] = item;
-            this.editing = null;
-            this.editingIndex = null;
-            this.clearForm();
-            this.saveToStorage();
-            this.refreshMarkers();
-            this.applyFilter();
-          }
-        });
-      } else {
-        // create via API
-        this.api.createParques(item).subscribe({
-          next: (created: any) => {
-            this.parks.unshift(created || item);
-            this.clearForm();
-            this.saveToStorage();
-            this.refreshMarkers();
-            this.applyFilter();
-          },
-          error: () => {
-            // fallback local
-            this.parks.unshift(item);
-            this.clearForm();
-            this.saveToStorage();
-            this.refreshMarkers();
-            this.applyFilter();
-          }
-        });
-      }
+ save() {
+  if (!this.title) return alert('Ingrese un título');
+
+  const item = { titulo: this.title, subtitulo: this.subtitle };
+
+  if (this.editing) {
+    // UPDATE
+    this.api.updateParques(this.editing.id, item).subscribe({
+  next: (res: any) => {
+    this.parks[this.editingIndex as number] = res || { ...this.editing, ...item };
+    this.finishSave();
+  },
+  error: () => {
+    this.parks[this.editingIndex as number] = { ...this.editing, ...item };
+    this.finishSave();
   }
+});
+
+  } else {
+    // CREATE
+    this.api.createParques(item).subscribe({
+      next: (created: any) => {
+        this.parks.unshift(created || item);
+        this.finishSave();
+      },
+      error: () => {
+        this.parks.unshift(item);
+        this.finishSave();
+        this.clearForm();
+        this.saveToStorage();
+         this.refreshMarkers();
+        this.applyFilter();
+      }
+    });
+  }
+}
+
+private finishSave() {
+  this.editing = null;
+  this.editingIndex = null;
+  this.modalOpen = false;
+
+  this.clearForm();
+  this.saveToStorage();
+  this.refreshMarkers();
+  this.applyFilter();
+}
+
+
 
   clearForm() {
     this.title = '';
     this.subtitle = '';
-    this.parkId = '';
   }
 
-  edit(p: any, i: number) {
-    this.editing = p;
-    this.editingIndex = i;
-    this.title = p.title || p.name || '';
-    this.subtitle = p.subtitle || p.description || '';
-    this.parkId = p.id || '';
-  }
+ edit(p: any, i: number) {
+  this.editing = p;
+  this.editingIndex = i;
+
+  this.title = p.title || p.name || '';
+  this.subtitle = p.subtitle || p.description || '';
+
+  this.modalOpen = true;
+}
+
 
   cancelEdit() {
     this.editing = null;

@@ -3,25 +3,33 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../../services/api.service';
 
+interface FloraItem {
+  id?: any;
+  titulo: string;
+  nombre: string;
+}
+
 @Component({
   selector: 'app-flora-admin',
   template: `
     <div class="flora-admin">
       <h2>Flora - Administración</h2>
-      <p class="muted">Gestiona plantas: agrega nombre y descripción.</p>
+      <p class="muted">Gestiona plantas: agrega nombre y título.</p>
 
       <div class="species-form">
-        <input placeholder="Nombre planta" [(ngModel)]="name" />
-        <input placeholder="Descripción" [(ngModel)]="description" />
-        <button class="add-btn" (click)="save()">{{ editing ? 'Guardar' : 'Agregar' }}</button>
-        <button class="btn" *ngIf="editing" (click)="cancel()">Cancelar</button>
+        <input placeholder="Título" [(ngModel)]="titulo" />
+        <input placeholder="Nombre" [(ngModel)]="nombre" />
+        <button class="add-btn" (click)="save()">
+          {{ editing !== null ? 'Guardar' : 'Agregar' }}
+        </button>
+        <button class="btn" *ngIf="editing !== null" (click)="cancel()">Cancelar</button>
       </div>
 
       <ul class="species-list">
         <li *ngFor="let s of plants; let i = index">
           <div>
-            <strong>{{ s.name }}</strong>
-            <div class="muted">{{ s.description }}</div>
+            <strong>{{ s.titulo }}</strong>
+            <div class="muted">{{ s.nombre }}</div>
           </div>
           <div class="actions">
             <button class="btn" (click)="edit(s, i)">Editar</button>
@@ -35,9 +43,9 @@ import { ApiService } from '../../../services/api.service';
   imports: [CommonModule, FormsModule]
 })
 export class Flora {
-  plants: Array<{ id?: any; name: string; description: string }> = [];
-  name = '';
-  description = '';
+  plants: FloraItem[] = [];
+  titulo = '';
+  nombre = '';
   editing: number | null = null;
 
   constructor(private api: ApiService) {
@@ -46,10 +54,10 @@ export class Flora {
 
   load() {
     this.api.getFloras().subscribe({
-      next: (data: any) => {
+      next: (data) => {
         if (Array.isArray(data)) {
           this.plants = data;
-          this.saveToStorage();
+          localStorage.setItem('av_flora', JSON.stringify(this.plants));
         } else {
           this.loadFromStorage();
         }
@@ -60,82 +68,81 @@ export class Flora {
 
   private loadFromStorage() {
     const s = localStorage.getItem('av_flora');
-    if (s) {
-      try {
-        this.plants = JSON.parse(s);
-      } catch (e) {
-        this.plants = [];
-      }
-    }
+    if (s) this.plants = JSON.parse(s);
   }
 
   save() {
-    if (!this.name) return alert('Ingrese nombre');
-    const item = { name: this.name, description: this.description };
-    if (this.editing != null) {
-      const id = this.plants[this.editing]?.id ?? this.editing;
-      this.api.updateFloras(id, item).subscribe({
-        next: (res: any) => {
-          this.plants[this.editing!] = res || item;
-          this.editing = null;
-          this.name = '';
-          this.description = '';
-          this.saveToStorage();
+    if (!this.titulo) return alert('Ingrese título');
+    if (!this.nombre) return alert('Ingrese nombre');
+
+    const payload = {
+      titulo: this.titulo,
+      nombre: this.nombre
+    };
+
+    if (this.editing !== null) {
+      const id = this.plants[this.editing]?.id;
+
+      this.api.updateFloras(id, payload).subscribe({
+        next: () => {
+          this.plants[this.editing!] = { ...payload, id };
+          this.reset();
         },
         error: () => {
-          this.plants[this.editing!] = item;
-          this.editing = null;
-          this.name = '';
-          this.description = '';
-          this.saveToStorage();
+          this.plants[this.editing!] = { ...payload, id };
+          this.reset();
         }
       });
+
     } else {
-      this.api.createFloras(item).subscribe({
+      this.api.createFloras(payload).subscribe({
         next: (created: any) => {
-          this.plants.unshift(created || item);
-          this.name = '';
-          this.description = '';
-          this.saveToStorage();
+          this.plants.unshift({ ...payload, id: created?.id });
+          this.reset();
         },
         error: () => {
-          this.plants.unshift(item);
-          this.name = '';
-          this.description = '';
-          this.saveToStorage();
+          this.plants.unshift(payload);
+          this.reset();
         }
       });
     }
   }
 
-  edit(s: any, i: number) {
-    this.name = s.name;
-    this.description = s.description;
+  edit(s: FloraItem, i: number) {
+    this.titulo = s.titulo;
+    this.nombre = s.nombre;
     this.editing = i;
   }
 
   cancel() {
+    this.reset();
+  }
+
+  reset() {
+    this.titulo = '';
+    this.nombre = '';
     this.editing = null;
-    this.name = '';
-    this.description = '';
+    localStorage.setItem('av_flora', JSON.stringify(this.plants));
   }
 
   remove(i: number) {
     if (!confirm('Eliminar planta?')) return;
-    const id = this.plants[i]?.id ?? i;
-    this.api.deleteFloras(id).subscribe({
-      next: () => {
-        this.plants.splice(i, 1);
-        this.saveToStorage();
-      },
-      error: () => {
-        this.plants.splice(i, 1);
-        this.saveToStorage();
-      }
-    });
-  }
+    const id = this.plants[i]?.id;
 
-  saveToStorage() {
-    localStorage.setItem('av_flora', JSON.stringify(this.plants));
+    if (id) {
+      this.api.deleteFloras(id).subscribe({
+        next: () => {
+          this.plants.splice(i, 1);
+          this.reset();
+        },
+        error: () => {
+          this.plants.splice(i, 1);
+          this.reset();
+        }
+      });
+    } else {
+      this.plants.splice(i, 1);
+      this.reset();
+    }
   }
 }
