@@ -20,6 +20,7 @@ html, body { height:100%; margin:0; font-family: 'Inter', system-ui, -apple-syst
   grid-template-columns: 260px 1fr;
   min-height: 100vh;
   gap: 0;
+  height: 100vh;
 }
 
 /* SIDEBAR */
@@ -31,6 +32,18 @@ html, body { height:100%; margin:0; font-family: 'Inter', system-ui, -apple-syst
   justify-content: space-between;
   border-right: 1px solid rgba(46,125,50,0.06);
   box-shadow: inset -6px 0 20px rgba(0,0,0,0.02);
+}
+
+/* Mantener el sidebar visible al desplazar la página sin romper el grid
+   Usamos `position: sticky` dentro del grid para que el layout de la derecha
+   no cambie (evita usar `position: fixed` que saca el elemento del flujo). */
+.admin-sidebar{
+  position: -webkit-sticky; /* Safari */
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  width: 260px;
+  z-index: 1200;
 }
 
 .brand{
@@ -126,6 +139,8 @@ html, body { height:100%; margin:0; font-family: 'Inter', system-ui, -apple-syst
   display:flex;
   flex-direction:column;
   gap:20px;
+  overflow:auto;
+  flex: 1 1 auto;
 }
 
 /* KPIs simple cards */
