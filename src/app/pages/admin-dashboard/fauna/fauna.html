@@ -1,31 +1,30 @@
-<div class="section">
+<div class="section visible">
   <div class="section-header">
-    <h1> Especies de Fauna</h1>
-    <button class="add-btn">+ Agregar Especie</button>
+    <h1>Especies de Fauna</h1>
+    <button class="add-btn" (click)="save()">+ Agregar Especie</button>
+  </div>
+
+  <div class="species-form">
+    <input placeholder="Título común" [(ngModel)]="titulo" />
+    <input placeholder="Nombre científico" [(ngModel)]="nombre" />
+    <button class="add-btn" (click)="save()">
+      {{ editingIndex !== null ? 'Guardar' : 'Agregar' }}
+    </button>
+    <button class="btn" *ngIf="editingIndex !== null" (click)="cancel()">Cancelar</button>
   </div>
 
   <ul class="item-list">
-    <li>
-      <strong>Huemul</strong> <em>(Hippocamelus bisulcus)</em> — Patagonia  
+    <li *ngFor="let f of species; let i = index">
+      <div class="item-info">
+        <div>
+          <strong>{{ f.titulo }}</strong>
+          <em>{{ f.nombre }}</em>
+        </div>
+      </div>
       <span class="actions">
-        <button class="edit-btn"></button>
-        <button class="delete-btn"></button>
-      </span>
-    </li>
-    <li>
-      <strong>Yaguareté</strong> <em>(Panthera onca)</em> — Misiones  
-      <span class="actions">
-        <button class="edit-btn">editar</button>
-        <button class="delete-btn">borrar</button>
-      </span>
-    </li>
-    <li>
-      <strong>Carancho</strong> <em>(Caracara plancus)</em> — Zona Pampeana  
-      <span class="actions">
-        <button class="edit-btn">editar</button>
-        <button class="delete-btn">borrar</button>
+        <button class="edit-btn" (click)="edit(f, i)">Editar</button>
+        <button class="delete-btn" (click)="remove(i)">Eliminar</button>
       </span>
     </li>
   </ul>
 </div>
-
