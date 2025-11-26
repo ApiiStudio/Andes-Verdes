@@ -7,10 +7,18 @@ import { Parques } from './pages/admin-dashboard/parques/parques';
 import { Fauna } from './pages/admin-dashboard/fauna/fauna';
 import { Flora } from './pages/admin-dashboard/flora/flora';
 import { Usuarios } from './pages/admin-dashboard/usuarios/usuarios';
+import { Login } from './auth/login/login';
+import { Register } from './auth/register/register';
+import { Florafauna } from './pages/florafauna/florafauna';
+import { AboutUs } from './pages/about-us/about-us';
 
 export const routes: Routes = [
-  { path: '', redirectTo: 'home', pathMatch: 'full' },
-  { path: 'home', component: Home },
+    {path:"", redirectTo: "inicio", pathMatch: "full"},
+    {path:"inicio", component: Home},
+    {path:"login", component: Login},
+    {path:"register", component: Register},
+    {path:"florafauna", component: Florafauna},
+    {path:"sobre-parques", component: AboutUs},
 
   {
     path: 'admin',

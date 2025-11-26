@@ -120,6 +120,32 @@
     width: 100%;
 }
 
+/*Sugerencias*/
+.email-suggestions-list {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 100%;
+    z-index: 10;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-top: none;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    max-height: 180px;
+    overflow-y: auto;
+}
+
+.email-suggestions-list li {
+    padding: 8px 16px;
+    cursor: pointer;
+}
+
+.email-suggestions-list li:hover {
+    background: #f0f0f0;
+}
+
 /* Responsive: en pantallas pequeñas apilar columnas */
 @media (max-width: 900px) {
     .loggin-wrapped > .row {

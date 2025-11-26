@@ -1,45 +1,72 @@
-<div class="dashboard-container">
-  <aside class="sidebar">
-    <div class="brand">
-      <h2>Andes Verdes</h2>
-      <small>Administración</small>
-    </div>
-    <nav class="menu">
+<div class="admin-shell">
+  <aside class="admin-sidebar" aria-label="Sidebar de administración">
+    <a class="brand" routerLink="/inicio" aria-label="Andes Verdes - Inicio">
+      <div class="brand__text">
+        <h1>Andes Verdes</h1>
+        <small>Administración</small>
+      </div>
+    </a>
+
+    <nav class="nav" role="navigation" aria-label="Menú principal">
       <ul>
-        <!-- rutas relativas: sin "admin/" porque el componente ya se monta en /admin -->
-        <li><a routerLink="panel-control" routerLinkActive="active"><span class="icon"></span>Panel</a></li>
-        <li><a routerLink="parques" routerLinkActive="active"><span class="icon"></span>Parques</a></li>
-        <li><a routerLink="fauna" routerLinkActive="active"><span class="icon"></span>Fauna</a></li>
-        <li><a routerLink="flora" routerLinkActive="active"><span class="icon"></span>Flora</a></li>
-        <li><a routerLink="usuarios" routerLinkActive="active"><span class="icon"></span>Usuarios</a></li>
+        <li><a routerLink="panel-control" routerLinkActive="active"><i class="icon icon-dashboard" aria-hidden="true"></i><span>Panel</span></a></li>
+        <li><a routerLink="parques" routerLinkActive="active"><i class="icon icon-park" aria-hidden="true"></i><span>Parques</span></a></li>
+        <li><a routerLink="fauna" routerLinkActive="active"><i class="icon icon-fauna" aria-hidden="true"></i><span>Fauna</span></a></li>
+        <li><a routerLink="flora" routerLinkActive="active"><i class="icon icon-flora" aria-hidden="true"></i><span>Flora</span></a></li>
+        <li><a routerLink="usuarios" routerLinkActive="active"><i class="icon icon-users" aria-hidden="true"></i><span>Usuarios</span></a></li>
       </ul>
     </nav>
+
+    <div class="sidebar-footer" role="contentinfo">
+      <small>Logged as <strong>Admin</strong></small>
+      <button class="btn small ghost" (click)="logout()">Cerrar sesión</button>
+    </div>
   </aside>
 
-  <div class="admin-layout">
-    <!-- evita duplicar sidebars; este router-outlet recibe las vistas hijas -->
-    <div class="admin-content">
-      <header class="topbar">
-        <!-- MARCO SUPERIOR: solo el buscador en el header, sin resumen -->
-        <div class="panel-frame">
-          <div class="search">
-            <input type="text" placeholder="Buscar parques, especies, usuarios..." />
-          </div>
-          <div class="actions">
-            <button class="add-btn dark" routerLink="parques">Agregar parque</button>
-          </div>
-        </div>
-      </header>
+  <div class="admin-main">
+    <header class="topbar" role="banner">
+      <div class="topbar__left">
+        <button class="btn icon-btn" id="sidebarToggle" aria-label="Toggle sidebar" (click)="toggleSidebar()">
+          <i class="icon icon-menu" aria-hidden="true"></i>
+        </button>
 
-      <main class="main-content">
-        <!-- Zona superior del contenido principal (KPIs y resumen se añadirán aquí paso a paso) -->
-        <div class="panel-main">
-          <!-- KPIs: se eliminaron temporalmente para rediseño iterativo -->
+        <div class="search-wrap">
+          <input type="search" placeholder="Buscar parques, especies, usuarios..." aria-label="Buscar" (input)="onSearch($event)" />
         </div>
+      </div>
 
+      <div class="topbar__right">
+        <button class="add-btn" routerLink="parques" title="Agregar parque">
+          <i class="icon icon-add" aria-hidden="true"></i>
+          <span>Agregar parque</span>
+        </button>
+      </div>
+    </header>
+
+    <main class="content" role="main">
+      <!-- espacio para KPIs / resúmenes -->
+      <section class="kpis">
+        <div class="kpi">
+          <div class="kpi__title">Parques</div>
+          <div class="kpi__value">12</div>
+          <div class="kpi__meta">Totales</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi__title">Usuarios</div>
+          <div class="kpi__value">154</div>
+          <div class="kpi__meta">Activos</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi__title">Último cambio</div>
+          <div class="kpi__value">2h</div>
+          <div class="kpi__meta">Actualizaciones</div>
+        </div>
+      </section>
+
+      <!-- aquí van las vistas hijas del admin -->
+      <section class="panel-area">
         <router-outlet></router-outlet>
-      </main>
-
-    </div>
+      </section>
+    </main>
   </div>
 </div>
