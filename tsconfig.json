@@ -20,8 +20,10 @@
     "strictInjectionParameters": true,
     "strictInputAccessModifiers": true,
     "typeCheckHostBindings": true,
-    "strictTemplates": true
-  },
+    "strictTemplates": true,
+    "enableNgIfSyntacticSugar": true,
+    "enableControlFlow": true
+},
   "files": [],
   "references": [
     {

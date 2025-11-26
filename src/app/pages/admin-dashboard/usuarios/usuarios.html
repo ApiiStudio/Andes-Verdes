@@ -1,6 +1,6 @@
 <div class="section">
   <div class="section-header">
-    <h1> Gestión de Usuarios</h1>
+    <h1>Gestión de Usuarios</h1>
     <button class="add-btn">+ Nuevo Usuario</button>
   </div>
 
@@ -14,25 +14,22 @@
       </tr>
     </thead>
     <tbody>
-      <tr>
-        <td>Joaquín Narvay</td>
-        <td>Administrador</td>
-        <td>joaquin@example.com</td>
-        <td>
-          <button class="edit-btn">editar</button>
-          <button class="delete-btn">borrar</button>
-        </td>
-      </tr>
-      <tr>
-        <td>Ezequiel Rey</td>
-        <td>Colaborador</td>
-        <td>ezequiel@example.com</td>
-        <td>
-          <button class="edit-btn">editar</button>
-          <button class="delete-btn">borrar</button>
+      <tr *ngFor="let u of users">
+        <td><strong>{{ u.username }}</strong></td>
+        <td>—</td>
+        <td>{{ u.email || 'sin email' }}</td>
+        <td class="actions">
+          <button class="edit-btn">Editar</button>
+          <button class="delete-btn" (click)="remove(u.username)">Eliminar</button>
         </td>
       </tr>
     </tbody>
   </table>
-</div>
 
+  <div class="connected-box">
+    <h3>Conectados ahora</h3>
+    <ul class="connected-list">
+      <li *ngFor="let c of connected">{{ c }}</li>
+    </ul>
+  </div>
+</div>
