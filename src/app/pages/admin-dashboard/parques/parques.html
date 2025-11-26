@@ -1,31 +1,30 @@
-<div class="section">
+<div class="section visible">
   <div class="section-header">
-    <h1> Gestión de Parques</h1>
-    <button class="add-btn">+ Agregar Parque</button>
+    <h1>Parques</h1>
+    <button class="add-btn" (click)="save()">+ Agregar Parque</button>
+  </div>
+
+  <div class="species-form">
+    <input placeholder="Título del parque" [(ngModel)]="title" />
+    <input placeholder="Subtítulo o descripción" [(ngModel)]="subtitle" />
+    <button class="add-btn" (click)="save()">
+      {{ editing ? 'Guardar' : 'Agregar' }}
+    </button>
+    <button class="btn" *ngIf="editing" (click)="cancelEdit()">Cancelar</button>
   </div>
 
   <ul class="item-list">
-    <li>
-      <strong>Nahuel Huapi</strong> — Río Negro / Neuquén
+    <li *ngFor="let p of filteredParks; let i = index; trackBy: trackById">
+      <div class="item-info">
+        <div>
+          <strong>{{ p.titulo }}</strong>
+          <em>{{ p.subtitulo }}</em>
+        </div>
+      </div>
       <span class="actions">
-        <button class="edit-btn">editar</button>
-        <button class="delete-btn">borrar</button>
-      </span>
-    </li>
-    <li>
-      <strong>Iguazú</strong> — Misiones
-      <span class="actions">
-        <button class="edit-btn">editar</button>
-        <button class="delete-btn">borrar</button>
-      </span>
-    </li>
-    <li>
-      <strong>Los Glaciares</strong> — Santa Cruz
-      <span class="actions">
-        <button class="edit-btn">editar</button>
-        <button class="delete-btn">borrar</button>
+        <button class="edit-btn" (click)="edit(p, i)">Editar</button>
+        <button class="delete-btn" (click)="remove(i)">Eliminar</button>
       </span>
     </li>
   </ul>
 </div>
-

@@ -9,43 +9,19 @@ interface FaunaItem {
   nombre: string;
 }
 
-
 @Component({
   selector: 'app-fauna-admin',
-  template: `
-    <div class="fauna-admin">
-      <h2>Fauna - Administración</h2>
-      <p class="muted">Gestiona especies: agrega nombre y descripción.</p>
-
-      <div class="species-form">
-        <input placeholder="titulo" [(ngModel)]="titulo" />
-        <input placeholder="nombre" [(ngModel)]="subtitulo" />
-        <button class="add-btn" (click)="save()">{{ editing !== null ? 'Guardar' : 'Agregar' }}</button>
-        <button class="btn" *ngIf="editing !== null" (click)="cancel()">Cancelar</button>
-      </div>
-
-      <ul class="species-list">
-        <li *ngFor="let s of species; let i = index">
-          <div>
-            <strong>{{ s.titulo }}</strong>
-            <div class="muted">{{ s.nombre }}</div>
-          </div>
-          <div class="actions">
-            <button class="btn" (click)="edit(s, i)">Editar</button>
-            <button class="btn danger" (click)="remove(i)">Eliminar</button>
-          </div>
-        </li>
-      </ul>
-    </div>
-  `,
+  templateUrl: './fauna.html',
+  styleUrls: ['./fauna.css'],
   standalone: true,
   imports: [CommonModule, FormsModule]
 })
 export class Fauna {
   species: FaunaItem[] = [];
   titulo = '';
-  subtitulo = '';
-  editing: number | null = null;
+  nombre = '';
+  editingIndex: number | null = null;
+  editingId: any = null;
 
   constructor(private api: ApiService) {
     this.load();
@@ -53,102 +29,64 @@ export class Fauna {
 
   load() {
     this.api.getFaunas().subscribe({
-      next: (data) => {
-        if (Array.isArray(data)) {
-          this.species = data;
-          this.saveToStorage();
-        } else {
-          this.loadFromStorage();
-        }
-      },
-      error: () => this.loadFromStorage()
+      next: (data: any[]) => {
+        this.species = data.map(f => ({
+          id: f.id,
+          titulo: f.titulo || '',
+          nombre: f.nombre || ''
+        }));
+      }
     });
-  }
-
-  private loadFromStorage() {
-    const s = localStorage.getItem('av_fauna');
-    if (s) this.species = JSON.parse(s);
-  }
-
-  saveToStorage() {
-    localStorage.setItem('av_fauna', JSON.stringify(this.species));
   }
 
   save() {
-  if (!this.titulo) return alert('Ingrese título');
+    const item = { titulo: this.titulo, nombre: this.nombre };
 
-  const payload = {
-  titulo: this.titulo,
-  nombre: this.subtitulo  
-};
-
-
-  if (this.editing !== null) {
-    const id = this.species[this.editing]?.id;
-
-    this.api.updateFaunas(id, payload).subscribe({
-      next: () => {
-        this.species[this.editing!] = { ...payload, id };
-        this.reset();
-      },
-      error: () => {
-        this.species[this.editing!] = { ...payload, id };
-        this.reset();
-      }
-    });
-
-  } else {
-    this.api.createFaunas(payload).subscribe({
-      next: (created: any) => {
-        this.species.unshift({ ...payload, id: created?.id });
-        this.reset();
-      },
-      error: () => {
-        this.species.unshift(payload);
-        this.reset();
-      }
-    });
-  }
-}
-
-
-  edit(s: FaunaItem, i: number) {
-    this.titulo = s.titulo;
-this.subtitulo = s.nombre;
-    this.editing = i;
-  }
-
-  cancel() {
-    this.reset();
-  }
-
-  reset() {
-    this.titulo = '';
-    this.subtitulo = '';
-    this.editing = null;
-    this.saveToStorage();
-  }
-
-  remove(i: number) {
-    if (!confirm('Eliminar especie?')) return;
-
-    const id = this.species[i]?.id;
-
-    if (id) {
-      this.api.deleteFaunas(id).subscribe({
-        next: () => {
-          this.species.splice(i, 1);
-          this.saveToStorage();
-        },
-        error: () => {
-          this.species.splice(i, 1);
-          this.saveToStorage();
+    if (this.editingIndex !== null && this.editingId) {
+      this.api.updateFaunas(this.editingId, item).subscribe({
+        next: (res: any) => {
+          this.species[this.editingIndex!] = {
+            ...res,
+            id: this.editingId
+          };
+          this.cancel();
         }
       });
     } else {
+      this.api.createFaunas(item).subscribe({
+        next: (created: any) => {
+          this.species.unshift({
+            ...created,
+            id: created?.id
+          });
+          this.cancel();
+        }
+      });
+    }
+  }
+
+  edit(f: FaunaItem, i: number) {
+    this.titulo = f.titulo;
+    this.nombre = f.nombre;
+    this.editingIndex = i;
+    this.editingId = f.id;
+  }
+
+  cancel() {
+    this.titulo = '';
+    this.nombre = '';
+    this.editingIndex = null;
+    this.editingId = null;
+  }
+
+  remove(i: number) {
+    const item = this.species[i];
+    if (item && item.id) {
+      this.api.deleteFaunas(item.id).subscribe({
+        next: () => this.species.splice(i, 1)
+      });
+    } else {
       this.species.splice(i, 1);
-      this.saveToStorage();
     }
   }
 }
-

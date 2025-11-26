@@ -1,41 +1,42 @@
-<div class="section">
+<div class="section visible">
   <header class="topbar">
-    <h1> Panel de Control</h1>
+    <h1>Panel de Control</h1>
     <input type="text" placeholder="Buscar..." />
   </header>
 
+  <!-- KPIs -->
   <div class="kpi-section">
     <div class="kpi-card">
-      <h3> Parques Registrados</h3>
-      <p class="number">49</p>
+      <h3>Parques Registrados</h3>
+      <p class="number">{{ parksCount }}</p>
       <span>Distribuidos en todo el país</span>
     </div>
     <div class="kpi-card">
-      <h3> Especies de Fauna</h3>
-      <p class="number">178</p>
+      <h3>Especies de Fauna</h3>
+      <p class="number">{{ faunaCount }}</p>
       <span>Incluye mamíferos, aves y reptiles</span>
     </div>
     <div class="kpi-card">
-      <h3> Especies de Flora</h3>
-      <p class="number">134</p>
+      <h3>Especies de Flora</h3>
+      <p class="number">{{ floraCount }}</p>
       <span>Plantas y árboles nativos</span>
     </div>
     <div class="kpi-card">
-      <h3> Usuarios Activos</h3>
-      <p class="number">1.245</p>
+      <h3>Usuarios Activos</h3>
+      <p class="number">{{ usersCount }}</p>
       <span>Administradores y visitantes</span>
     </div>
   </div>
 
+  <!-- Gráficos -->
   <div class="chart-section">
     <div class="chart-card">
       <h3>Visitas Mensuales a Parques</h3>
-      <div class="chart-placeholder"></div>
+      <canvas id="parksChart"></canvas>
     </div>
     <div class="chart-card">
       <h3>Distribución de Especies</h3>
-      <div class="chart-placeholder"></div>
+      <canvas id="speciesChart"></canvas>
     </div>
   </div>
 </div>
-
