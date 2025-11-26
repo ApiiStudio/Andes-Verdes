@@ -175,7 +175,7 @@ export class Parques implements OnInit {
     this.clearForm();
   }
 
- remove(i: number) {
+  remove(i: number) {
   if (!confirm('Eliminar parque?')) return;
   const id = this.parks[i]?.id;
 
