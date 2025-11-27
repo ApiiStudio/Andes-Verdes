@@ -8,15 +8,18 @@
     <input class="ipt" placeholder="Título común" [(ngModel)]="titulo" />
     <input class="ipt" placeholder="Nombre científico" [(ngModel)]="nombre" />
     <button class="add-btn" (click)="save()">
-      {{ editingIndex !== null ? 'Guardar' : 'Agregar' }}
+      {{ editingId !== null ? 'Guardar' : 'Agregar' }}
     </button>
-    @if (editingIndex !== null) {
-      <button class="btn" (click)="cancel()">Cancelar</button>
+
+    @if (editingId !== null) {
+    <button class="btn" (click)="cancel()">Cancelar</button>
     }
+
   </div>
 
   <ul class="item-list">
-    @for (f of filteredSpecies; track f.id) {
+    @for (f of filteredSpecies; track f.id_flora) {
+    <li>
       <div class="item-info">
         <div>
           <strong>{{ f.titulo }}</strong>
@@ -24,9 +27,10 @@
         </div>
       </div>
       <span class="actions">
-        <button class="edit-btn" (click)="edit(f, $index)">Editar</button>
-        <button class="delete-btn" (click)="remove($index)">Eliminar</button>
+        <button class="edit-btn" (click)="edit(f)">Editar</button>
+        <button class="delete-btn" (click)="remove(f)">Eliminar</button>
       </span>
+    </li>
     }
   </ul>
 </div>
