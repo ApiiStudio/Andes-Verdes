@@ -8,13 +8,13 @@
     <thead>
       <tr>
         <th>Nombre</th>
-        <th>Rol</th>
         <th>Email</th>
         <th>Acciones</th>
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let u of users">
+      @for (u of filteredUsers; track u.username) {
+      <tr>
         <td><strong>{{ u.username }}</strong></td>
         <td>—</td>
         <td>{{ u.email || 'sin email' }}</td>
@@ -23,13 +23,16 @@
           <button class="delete-btn" (click)="remove(u.username)">Eliminar</button>
         </td>
       </tr>
+      }
     </tbody>
   </table>
 
   <div class="connected-box">
     <h3>Conectados ahora</h3>
     <ul class="connected-list">
-      <li *ngFor="let c of connected">{{ c }}</li>
+      @for (c of connected; track c) {
+      <li>{{ c }}</li>
+      }
     </ul>
   </div>
 </div>

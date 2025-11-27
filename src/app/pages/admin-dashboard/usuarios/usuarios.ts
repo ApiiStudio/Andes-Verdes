@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ApiService } from '../../../services/api.service';
 
@@ -15,15 +15,33 @@ interface UserItem {
   standalone: true,
   imports: [CommonModule]
 })
-export class Usuarios implements OnInit {
+export class Usuarios implements OnInit, OnDestroy {
   users: UserItem[] = [];
   connected: string[] = [];
+  filteredUsers: UserItem[] = [];
+  filterText = '';
 
   constructor(private api: ApiService) {}
 
   ngOnInit(): void {
     this.loadUsers();
     this.connected = ['admin', 'editor1'];
+    (window as any).addEventListener('admin-search', this._onAdminSearch as EventListener);
+  }
+
+  private _onAdminSearch = (e: any) => {
+    const term = (e?.detail?.term || '').toString().trim().toLowerCase();
+    this.filterText = term;
+    this.applyFilter();
+  };
+
+  ngOnDestroy(): void {
+    try { (window as any).removeEventListener('admin-search', this._onAdminSearch as EventListener); } catch {}
+  }
+
+  applyFilter() {
+    const v = (this.filterText || '').toLowerCase().trim();
+    this.filteredUsers = !v ? this.users.slice() : this.users.filter(u => (u.username || '').toLowerCase().includes(v) || (u.email || '').toLowerCase().includes(v));
   }
 
   loadUsers() {
@@ -37,6 +55,7 @@ export class Usuarios implements OnInit {
             email: u.email ?? ''
           }));
           localStorage.setItem('av_users', JSON.stringify(this.users));
+          this.applyFilter();
         } else {
           this.loadFromStorage();
         }
@@ -50,8 +69,10 @@ export class Usuarios implements OnInit {
     if (s) {
       try {
         this.users = JSON.parse(s);
+        this.applyFilter();
       } catch {
         this.users = [];
+        this.applyFilter();
       }
     } else {
       this.users = [
@@ -59,6 +80,7 @@ export class Usuarios implements OnInit {
         { username: 'usuario1', email: 'u1@andes.local' }
       ];
       localStorage.setItem('av_users', JSON.stringify(this.users));
+      this.applyFilter();
     }
   }
 

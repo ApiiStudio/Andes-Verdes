@@ -56,7 +56,7 @@ body, html {
 
 .kpi-card {
   background: var(--card);
-  border-radius: var(--radius);
+  border-radius: 15px;
   padding: 20px;
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
   border-left: 5px solid var(--primary);
@@ -94,12 +94,12 @@ body, html {
 
 .chart-card canvas {
   width: 100% !important;
-  height: 200px !important;
+  height: 400px !important;
 }
 
 .chart-card {
   background: var(--card);
-  border-radius: var(--radius);
+  border-radius: 15px;
   padding: 20px;
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
 }

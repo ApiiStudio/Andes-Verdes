@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../../services/api.service';
@@ -16,8 +16,10 @@ interface FaunaItem {
   standalone: true,
   imports: [CommonModule, FormsModule]
 })
-export class Fauna {
+export class Fauna implements OnInit, OnDestroy {
   species: FaunaItem[] = [];
+  filteredSpecies: FaunaItem[] = [];
+  filterText = '';
   titulo = '';
   nombre = '';
   editingIndex: number | null = null;
@@ -25,6 +27,28 @@ export class Fauna {
 
   constructor(private api: ApiService) {
     this.load();
+  }
+
+  ngOnInit(): void {
+    // listen for admin-wide search
+    (window as any).addEventListener('admin-search', this._onAdminSearch as EventListener);
+  }
+
+  private _onAdminSearch = (e: any) => {
+    const term = (e?.detail?.term || '').toString().trim().toLowerCase();
+    this.filterText = term;
+    this.applyFilter();
+  };
+
+  ngOnDestroy(): void {
+    try { (window as any).removeEventListener('admin-search', this._onAdminSearch as EventListener); } catch {}
+  }
+
+  applyFilter() {
+    const v = (this.filterText || '').toLowerCase().trim();
+    this.filteredSpecies = !v ? this.species.slice() : this.species.filter(s => {
+      return (s.titulo || '').toLowerCase().includes(v) || (s.nombre || '').toLowerCase().includes(v);
+    });
   }
 
   load() {
@@ -35,6 +59,7 @@ export class Fauna {
           titulo: f.titulo || '',
           nombre: f.nombre || ''
         }));
+        this.applyFilter();
       }
     });
   }

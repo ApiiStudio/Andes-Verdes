@@ -19,7 +19,7 @@ export class ApiService {
   }
 
   getParques(id: string | number): Observable<any> {
-    return this.http.get(`${environment.apiUrl}/parques/${id}`).pipe(catchError(this.handleError));
+    return this.http.get(`${environment.apiUrl}/parques/${id}/`).pipe(catchError(this.handleError));
   }
 
   createParques(payload: any): Observable<any> {
@@ -27,11 +27,11 @@ export class ApiService {
   }
 
   updateParques(id: string | number, payload: any): Observable<any> {
-    return this.http.put(`${environment.apiUrl}/parques/${id}`, payload, this.jsonOptions).pipe(catchError(this.handleError));
+    return this.http.put(`${environment.apiUrl}/parques/${id}/`, payload, this.jsonOptions).pipe(catchError(this.handleError));
   }
 
   deleteParques(id: string | number): Observable<any> {
-    return this.http.delete(`${environment.apiUrl}/parques/${id}`).pipe(catchError(this.handleError));
+    return this.http.delete(`${environment.apiUrl}/parques/${id}/`).pipe(catchError(this.handleError));
   }
 
   /* Faunas */
@@ -44,11 +44,11 @@ export class ApiService {
   }
 
   updateFaunas(id: any, payload: any) {
-    return this.http.put(`${environment.apiUrl}/faunas/${id}`, payload, this.jsonOptions).pipe(catchError(this.handleError));
+    return this.http.put(`${environment.apiUrl}/faunas/${id}/`, payload, this.jsonOptions).pipe(catchError(this.handleError));
   }
 
   deleteFaunas(id: any) {
-    return this.http.delete(`${environment.apiUrl}/faunas/${id}`).pipe(catchError(this.handleError));
+    return this.http.delete(`${environment.apiUrl}/faunas/${id}/`).pipe(catchError(this.handleError));
   }
 
   /* Floras */
@@ -61,11 +61,11 @@ export class ApiService {
   }
 
   updateFloras(id: any, payload: any) {
-    return this.http.put(`${environment.apiUrl}/floras/${id}`, payload, this.jsonOptions).pipe(catchError(this.handleError));
+    return this.http.put(`${environment.apiUrl}/floras/${id}/`, payload, this.jsonOptions).pipe(catchError(this.handleError));
   }
 
   deleteFloras(id: any) {
-    return this.http.delete(`${environment.apiUrl}/floras/${id}`).pipe(catchError(this.handleError));
+    return this.http.delete(`${environment.apiUrl}/floras/${id}/`).pipe(catchError(this.handleError));
   }
 
   /* Usuarios */
@@ -78,16 +78,16 @@ export class ApiService {
   }
 
   updateUsuarios(id: any, payload: any) {
-    return this.http.put(`${environment.apiUrl}/usuarios/${id}`, payload, this.jsonOptions).pipe(catchError(this.handleError));
+    return this.http.put(`${environment.apiUrl}/usuarios/${id}/`, payload, this.jsonOptions).pipe(catchError(this.handleError));
   }
 
   deleteUsuarios(id: any) {
-    return this.http.delete(`${environment.apiUrl}/usuarios/${id}`).pipe(catchError(this.handleError));
+    return this.http.delete(`${environment.apiUrl}/usuarios/${id}/`).pipe(catchError(this.handleError));
   }
 
   /* Imagenes */
   uploadImagen(formData: FormData) {
-    return this.http.post(`${environment.apiUrl}/imagenes`, formData).pipe(catchError(this.handleError));
+    return this.http.post(`${environment.apiUrl}/imagenes/`, formData).pipe(catchError(this.handleError));
   }
 
   private handleError(err: any) {

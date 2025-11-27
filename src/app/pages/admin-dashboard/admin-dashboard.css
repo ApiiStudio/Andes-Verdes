@@ -35,7 +35,7 @@ html, body { height:100%; margin:0; font-family: 'Inter', system-ui, -apple-syst
 }
 
 /* Mantener el sidebar visible al desplazar la página sin romper el grid
-   Usamos `position: sticky` dentro del grid para que el layout de la derecha
+  Usamos `position: sticky` dentro del grid para que el layout de la derecha
    no cambie (evita usar `position: fixed` que saca el elemento del flujo). */
 .admin-sidebar{
   position: -webkit-sticky; /* Safari */
@@ -115,6 +115,26 @@ html, body { height:100%; margin:0; font-family: 'Inter', system-ui, -apple-syst
   background: #fff;
   box-shadow: inset 0 2px 6px rgba(0,0,0,0.03);
 }
+
+.search-wrap .suggestions{
+  position: absolute;
+  margin-top: 10px;
+  list-style: none;
+  padding: 6px 0;
+  width: 420px;
+  background: #fff;
+  border: 1px solid rgba(0,0,0,0.06);
+  border-radius: 10px;
+  box-shadow: 0 8px 26px rgba(12, 60, 20, 0.06);
+  z-index: 1400;
+}
+.search-wrap .suggestions li{
+  padding: 8px 12px;
+  cursor: pointer;
+  font-weight:600;
+  color: #103216;
+}
+.search-wrap .suggestions li:hover{ background: var(--green-50); }
 .topbar__right{ display:flex; gap:10px; align-items:center; }
 
 .add-btn{
@@ -141,6 +161,56 @@ html, body { height:100%; margin:0; font-family: 'Inter', system-ui, -apple-syst
   gap:20px;
   overflow:auto;
   flex: 1 1 auto;
+}
+
+/* Admin global input styles: add border to inputs/selects/textareas for better contrast */
+.admin-main input,
+.admin-main select,
+.admin-main textarea,
+.admin-main .search-input,
+.admin-main .ipt {
+  border: 1px solid rgba(15, 23, 42, 0.08) !important;
+  background: #fff !important;
+  padding: 8px 10px !important;
+  border-radius: 8px !important;
+  outline: none !important;
+  transition: border-color .18s ease, box-shadow .18s ease, background .18s ease;
+}
+.admin-main input::placeholder,
+.admin-main textarea::placeholder,
+.admin-main .ipt::placeholder,
+.admin-main .search-input::placeholder {
+  color: rgba(15,23,42,0.35);
+}
+.admin-main input:focus,
+.admin-main select:focus,
+.admin-main textarea:focus,
+.admin-main .search-input:focus,
+.admin-main .ipt:focus {
+  border-color: rgba(6,105,80,0.9);
+  box-shadow: 0 8px 26px rgba(6,105,80,0.06);
+}
+
+/* Make the topbar search visually distinct and full width inside its container */
+.topbar .search-wrap .search-input,
+.admin-main .search-container .search-input {
+  width: 100%;
+  max-width: 100%;
+  padding: 10px 14px;
+  border-radius: 999px;
+}
+
+/* More specific override for .ipt inputs to ensure visible border against light backgrounds */
+.admin-main .section .species-form .ipt,
+.admin-main .section .ipt {
+  border: 1.5px solid rgba(15, 23, 42, 0.16) !important;
+  box-shadow: none !important;
+  background: #ffffff !important;
+}
+.admin-main .section .species-form .ipt:focus,
+.admin-main .section .ipt:focus {
+  border: 1.6px solid rgba(6,105,80,0.95) !important;
+  box-shadow: 0 10px 30px rgba(6,105,80,0.06) !important;
 }
 
 /* KPIs simple cards */

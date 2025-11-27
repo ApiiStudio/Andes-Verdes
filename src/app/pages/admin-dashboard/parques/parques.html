@@ -1,20 +1,53 @@
 <div class="section visible">
+  <div class="search-wrapper">
+    <div class="search-container">
+      <button class="botonsearchh">
+        <i class="fa-solid fa-magnifying-glass"></i>
+      </button>
+      <input id="searchInput" type="search" placeholder="Buscar parque..." (input)="onSearchChange($event)"
+        class="search-input" autocomplete="off" [value]="searchText" />
+    </div>
+
+    @if (suggestions.length > 0) {
+    <ul class="suggestions">
+      @for (parque of suggestions; track parque.id) {
+      <li (click)="selectParque(parque)">
+        {{ parque.titulo }}
+        <span class="provincia">({{ parque.subtitulo }})</span>
+      </li>
+      }
+    </ul>
+    }
+  </div>
+
+  <div style="margin:12px 0; display:flex; gap:12px; align-items:center;">
+    <label for="provFilter" style="font-weight:600; color:var(--text);">Provincia:</label>
+    <select id="provFilter" #prov (change)="setProvinceFilter(prov.value)" style="padding:8px 10px; border-radius:8px;">
+      <option value="">Todas</option>
+      @for (pr of provinces; track pr) {
+      <option value="{{ pr }}">{{ pr }}</option>
+      }
+    </select>
+  </div>
   <div class="section-header">
     <h1>Parques</h1>
     <button class="add-btn" (click)="save()">+ Agregar Parque</button>
   </div>
 
   <div class="species-form">
-    <input placeholder="Título del parque" [(ngModel)]="title" />
-    <input placeholder="Subtítulo o descripción" [(ngModel)]="subtitle" />
+    <input class="ipt" placeholder="Título del parque" [(ngModel)]="title" />
+    <input class="ipt" placeholder="Subtítulo o descripción" [(ngModel)]="subtitle" />
     <button class="add-btn" (click)="save()">
       {{ editing ? 'Guardar' : 'Agregar' }}
     </button>
-    <button class="btn" *ngIf="editing" (click)="cancelEdit()">Cancelar</button>
+    @if (editing) {
+      <button class="btn" (click)="cancelEdit()">Cancelar</button>
+    }
   </div>
 
   <ul class="item-list">
-    <li *ngFor="let p of filteredParks; let i = index; trackBy: trackById">
+    @for (p of filteredParks; track p.id) {
+      <li>
       <div class="item-info">
         <div>
           <strong>{{ p.titulo }}</strong>
@@ -22,9 +55,10 @@
         </div>
       </div>
       <span class="actions">
-        <button class="edit-btn" (click)="edit(p, i)">Editar</button>
-        <button class="delete-btn" (click)="remove(i)">Eliminar</button>
+        <button class="edit-btn" (click)="edit(p, $index)">Editar</button>
+        <button class="delete-btn" (click)="remove($index)">Eliminar</button>
       </span>
-    </li>
+      </li>
+    }
   </ul>
 </div>

@@ -195,3 +195,42 @@ body, html {
     transform: translateY(0);
   }
 }
+
+/* BOTÓN NUEVO USUARIO (igual a Fauna/Parques) */
+.add-btn {
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  color: black;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 30px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: var(--transition);
+  box-shadow: 0 3px 8px rgba(46, 125, 50, 0.3);
+}
+.add-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 15px rgba(46, 125, 50, 0.4);
+}
+
+ .ipt {
+  border: 1.5px solid rgba(15,23,42,0.16) !important;
+  background: #fff !important;
+  padding: 10px 12px !important;
+  border-radius: 10px !important;
+  transition: border-color .18s ease, box-shadow .18s ease;
+ }
+
+ .search-input {
+  border: 1.25px solid rgba(15,23,42,0.14) !important;
+  background: #fff !important;
+  padding: 10px 12px !important;
+  border-radius: 12px !important;
+  transition: border-color .18s ease, box-shadow .18s ease;
+ }
+
+ .ipt:focus,
+ .search-input:focus {
+  border-color: rgba(6,105,80,0.95) !important;
+  box-shadow: 0 8px 26px rgba(6,105,80,0.06) !important;
+ }

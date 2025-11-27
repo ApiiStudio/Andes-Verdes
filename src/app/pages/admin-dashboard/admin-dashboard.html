@@ -26,12 +26,18 @@
   <div class="admin-main">
     <header class="topbar" role="banner">
       <div class="topbar__left">
-        <button class="btn icon-btn" id="sidebarToggle" aria-label="Toggle sidebar" (click)="toggleSidebar()">
-          <i class="icon icon-menu" aria-hidden="true"></i>
-        </button>
 
         <div class="search-wrap">
-          <input type="search" placeholder="Buscar parques, especies, usuarios..." aria-label="Buscar" (input)="onSearch($event)" />
+          <input type="search" placeholder="Buscar parques, especies, usuarios..." aria-label="Buscar" (input)="onSearch($event)" [value]="searchTerm" />
+          @if (suggestions.length > 0) {
+          <ul class="suggestions">
+            @for (s of suggestions; track s.label) {
+            <li (click)="selectSuggestion(s)">
+              {{ s.label }} - {{ s.category }}
+            </li>
+            }
+          </ul>
+          }
         </div>
       </div>
 
@@ -48,18 +54,23 @@
       <section class="kpis">
         <div class="kpi">
           <div class="kpi__title">Parques</div>
-          <div class="kpi__value">12</div>
-          <div class="kpi__meta">Totales</div>
+          <div class="kpi__value">{{ parksCount }}</div>
+          <div class="kpi__meta">Registrados</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi__title">Fauna</div>
+          <div class="kpi__value">{{ faunaCount }}</div>
+          <div class="kpi__meta">Especies</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi__title">Flora</div>
+          <div class="kpi__value">{{ floraCount }}</div>
+          <div class="kpi__meta">Especies</div>
         </div>
         <div class="kpi">
           <div class="kpi__title">Usuarios</div>
-          <div class="kpi__value">154</div>
-          <div class="kpi__meta">Activos</div>
-        </div>
-        <div class="kpi">
-          <div class="kpi__title">Último cambio</div>
-          <div class="kpi__value">2h</div>
-          <div class="kpi__meta">Actualizaciones</div>
+          <div class="kpi__value">{{ usersCount }}</div>
+          <div class="kpi__meta">Registrados</div>
         </div>
       </section>
 
